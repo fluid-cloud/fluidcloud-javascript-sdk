@@ -1,0 +1,124 @@
+{
+  "name": "@fluid-cloud/fluidcloud-js-sdk",
+  "version": "0.1.0",
+  "description": "FluidCloud JavaScript SDK \u2014 one API across AWS, Azure, GCP and OCI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fluid-cloud/fluidcloud-javascript-sdk.git"
+  },
+  "homepage": "https://github.com/fluid-cloud/fluidcloud-javascript-sdk#readme",
+  "bugs": {
+    "url": "https://github.com/fluid-cloud/fluidcloud-javascript-sdk/issues"
+  },
+  "keywords": [
+    "fluidcloud",
+    "cloud",
+    "sdk",
+    "multi-cloud",
+    "aws",
+    "azure",
+    "gcp",
+    "oci",
+    "storage",
+    "secrets"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "vitest run --config vitest.e2e.config.ts",
+    "coverage": "node scripts/coverage-matrix.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudfront": "^3.1126.0",
+    "@aws-sdk/client-cloudtrail": "^3.1126.0",
+    "@aws-sdk/client-cloudwatch": "^3.1126.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.1126.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1126.0",
+    "@aws-sdk/client-kinesis": "^3.1126.0",
+    "@aws-sdk/client-s3": "^3.1126.0",
+    "@aws-sdk/client-secrets-manager": "^3.1126.0",
+    "@aws-sdk/client-sesv2": "^3.1126.0",
+    "@aws-sdk/client-sns": "^3.1126.0",
+    "@aws-sdk/client-sqs": "^3.1126.0",
+    "@aws-sdk/client-ssm": "^3.1126.0",
+    "@aws-sdk/client-sts": "^3.1126.0",
+    "@aws-sdk/credential-providers": "^3.1126.0",
+    "@aws-sdk/lib-storage": "^3.1126.0",
+    "@aws-sdk/s3-request-presigner": "^3.1126.0",
+    "@azure/app-configuration": "^1.12.1",
+    "@azure/arm-cdn": "^10.0.0",
+    "@azure/arm-eventhub": "^6.0.0",
+    "@azure/arm-monitor": "^8.0.0",
+    "@azure/arm-operationalinsights": "^11.0.0",
+    "@azure/communication-email": "^1.1.0",
+    "@azure/event-hubs": "^6.0.4",
+    "@azure/identity": "^4.13.2",
+    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/monitor-ingestion": "^1.2.0",
+    "@azure/monitor-query": "^1.3.3",
+    "@azure/search-documents": "^13.0.0",
+    "@azure/service-bus": "^7.9.5",
+    "@azure/storage-blob": "^12.33.0",
+    "@google-cloud/compute": "^7.2.0",
+    "@google-cloud/logging": "^12.0.1",
+    "@google-cloud/monitoring": "^6.0.0",
+    "@google-cloud/parametermanager": "^0.6.0",
+    "@google-cloud/pubsub": "^6.0.1",
+    "@google-cloud/secret-manager": "^7.0.0",
+    "@google-cloud/storage": "^8.0.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@opensearch-project/opensearch": "^3.6.0",
+    "@smithy/types": "^4.18.0",
+    "firebase-admin": "^14.3.0",
+    "google-auth-library": "^11.0.2",
+    "google-gax": "^6.2.0",
+    "ioredis": "^6.0.0",
+    "kafkajs": "^2.2.4",
+    "oci-audit": "^2.140.1",
+    "oci-common": "^2.140.1",
+    "oci-email": "^2.140.1",
+    "oci-emaildataplane": "^2.140.1",
+    "oci-identitydomains": "^2.140.1",
+    "oci-keymanagement": "^2.140.1",
+    "oci-logging": "^2.140.1",
+    "oci-loggingingestion": "^2.140.1",
+    "oci-loggingsearch": "^2.140.1",
+    "oci-monitoring": "^2.140.1",
+    "oci-objectstorage": "^2.140.1",
+    "oci-ons": "^2.140.1",
+    "oci-queue": "^2.140.1",
+    "oci-secrets": "^2.140.1",
+    "oci-streaming": "^2.140.1",
+    "oci-vault": "^2.140.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.0"
+  }
+}
