@@ -1,0 +1,13 @@
+export { BlobStorage } from './storage.js';
+export { KeyVaultSecrets } from './secrets.js';
+export { AppConfigurationParameters } from './parameters.js';
+export { ServiceBusMessaging } from './messaging.js';
+export { ServiceBusQueue } from './queue.js';
+export { AcsEmail } from './email.js';
+export { AzureMonitoring } from './monitoring.js';
+export { ActivityLogAudit } from './audit.js';
+export { EventHubsStreaming } from './streaming.js';
+export { FrontDoorCdn } from './cdn.js';
+export { EntraIdentity } from './identity.js';
+export { AzureRedisCache } from './cache.js';
+export { AiSearch } from './search.js';

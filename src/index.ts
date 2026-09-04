@@ -1,0 +1,50 @@
+export { Client, createClient, type ClientOptions } from './client.js';
+export { DEFAULT_SERVER_URL, validateConfig, type Config, type ResolvedConfig } from './config.js';
+export {
+  CloudServiceInitializer,
+  getCapabilities,
+  type ProviderCapabilities,
+  type ProviderOptions,
+} from './provider/initializer.js';
+export * from './provider/types/index.js';
+export {
+  AUTH_MODE_ACCESS_KEY,
+  AUTH_MODE_ASSUME_ROLE,
+  CloudEntity,
+  Fetcher,
+  PROVIDER_AWS,
+  PROVIDER_AZURE,
+  PROVIDER_GCP,
+  PROVIDER_OCI,
+  decryptEnvelope,
+  encryptEnvelope,
+  generateEphemeralKeyPair,
+  parsePublicKeyPem,
+  type AwsCredentials,
+  type AzureCredentials,
+  type EnvelopeRequest,
+  type EnvelopeResponse,
+  type EphemeralKeyPair,
+  type GcpCredentials,
+  type OciCredentials,
+  type Provider,
+} from './credentials/index.js';
+export {
+  AccessDeniedError,
+  EntityNotFoundError,
+  ErrorCode,
+  FluidCloudError,
+  InvalidCredentialsError,
+  NotFoundError,
+  OperationNotSupportedError,
+  ProviderError,
+  ProviderNotFoundError,
+  UnsupportedError,
+  ValidationError,
+  hasCode,
+  isAccessDenied,
+  isNotFound,
+  isUnsupported,
+  messageOf,
+  wrapProviderError,
+} from './errors.js';

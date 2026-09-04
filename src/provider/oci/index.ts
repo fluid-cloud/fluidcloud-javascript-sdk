@@ -1,0 +1,13 @@
+export { ObjectStorage } from './storage.js';
+export { VaultSecrets } from './secrets.js';
+export { VaultParameters } from './parameters.js';
+export { OnsMessaging } from './messaging.js';
+export { OciQueue } from './queue.js';
+export { OciEmail } from './email.js';
+export { OciMonitoring } from './monitoring.js';
+export { OciAudit } from './audit.js';
+export { OciStreaming } from './streaming.js';
+export { OciCdn } from './cdn.js';
+export { IamDomainsIdentity } from './identity.js';
+export { OciRedisCache } from './cache.js';
+export { OpenSearchOci } from './search.js';

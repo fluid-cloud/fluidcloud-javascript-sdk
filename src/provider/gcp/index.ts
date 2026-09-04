@@ -1,0 +1,13 @@
+export { GcsStorage } from './storage.js';
+export { SecretManagerSecrets } from './secrets.js';
+export { ParameterManagerParameters } from './parameters.js';
+export { PubSubMessaging } from './messaging.js';
+export { PubSubQueue } from './queue.js';
+export { GcpEmail } from './email.js';
+export { CloudMonitoring } from './monitoring.js';
+export { CloudAudit } from './audit.js';
+export { PubSubStreaming } from './streaming.js';
+export { CloudCdn } from './cdn.js';
+export { CloudIdentity } from './identity.js';
+export { MemorystoreRedis } from './cache.js';
+export { GcpSearch } from './search.js';
