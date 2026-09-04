@@ -1,0 +1,13 @@
+export { S3Storage } from './storage.js';
+export { SecretsManager } from './secrets.js';
+export { ParameterStore } from './parameters.js';
+export { SnsMessaging } from './messaging.js';
+export { SqsQueue } from './queue.js';
+export { SesEmail } from './email.js';
+export { CloudWatchMonitoring } from './monitoring.js';
+export { CloudTrailAudit } from './audit.js';
+export { KinesisStreaming, MskStreaming } from './streaming.js';
+export { CloudFrontCdn } from './cdn.js';
+export { CognitoIdentity } from './identity.js';
+export { ElastiCacheRedis } from './cache.js';
+export { OpenSearchAws } from './search.js';
