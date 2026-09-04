@@ -44,4 +44,13 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun audit
+
+      # Fail only on high and critical. Low and moderate advisories in
+      # transitive dependencies we do not control should not block every PR;
+      # the full list is printed below for review.
+      - name: Fail on high or critical advisories
+        run: bun audit --audit-level=high
+
+      - name: Report all advisories
+        if: always()
+        run: bun audit || true
