@@ -23,7 +23,7 @@ export function awsClientConfig(creds: AwsCredentials, regionOverride?: string):
       credentials: fromTemporaryCredentials({
         params: {
           RoleArn: creds.roleArn as string,
-          RoleSessionName: 'fluidcloud-js-sdk',
+          RoleSessionName: 'fluidcloud-javascript-sdk',
           ...(creds.externalId ? { ExternalId: creds.externalId } : {}),
         },
         clientConfig: { region },
