@@ -9,7 +9,7 @@ services and the same 172 methods, including its emulations and its deliberate
 gaps.
 
 ```bash
-bun add @fluid-cloud/fluidcloud-js-sdk    # or npm install
+bun add @fluid-cloud/fluidcloud-javascript-sdk    # or npm install
 ```
 
 Node 18 or newer. TypeScript types are bundled; ESM and CJS both work.
@@ -19,7 +19,7 @@ Node 18 or newer. TypeScript types are bundled; ESM and CJS both work.
 ## Quick start
 
 ```ts
-import { createClient } from '@fluid-cloud/fluidcloud-js-sdk';
+import { createClient } from '@fluid-cloud/fluidcloud-javascript-sdk';
 
 const client = await createClient({
   apiKey: process.env.API_KEY!,     // "fc_<keyid>_<secret>", from Settings → API Keys
@@ -120,7 +120,7 @@ mechanisms tell you where you stand:
 client.storage.supports('multipart');   // false on GCS
 
 // 2. catch a typed error
-import { isUnsupported } from '@fluid-cloud/fluidcloud-js-sdk';
+import { isUnsupported } from '@fluid-cloud/fluidcloud-javascript-sdk';
 try {
   await client.storage.setTags(bucket, key, { owner: 'platform' });
 } catch (err) {

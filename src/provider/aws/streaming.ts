@@ -273,7 +273,7 @@ export class MskStreaming implements Streaming {
   constructor(_creds: AwsCredentials, bootstrapServers: string) {
     if (!bootstrapServers) throw new InvalidCredentialsError('bootstrapServers is required for AWS MSK streaming');
     const brokers = bootstrapServers.split(',').map((b) => b.trim());
-    this.kafka = new Kafka({ clientId: 'fluidcloud-js-sdk', brokers, connectionTimeout: 10_000 });
+    this.kafka = new Kafka({ clientId: 'fluidcloud-javascript-sdk', brokers, connectionTimeout: 10_000 });
   }
 
   /** Creates a Kafka topic. */
@@ -366,7 +366,7 @@ export class MskStreaming implements Streaming {
   async getRecords(streamId: string, opts: GetRecordsOptions): Promise<StreamRecord[]> {
     const limit = opts.limit && opts.limit > 0 ? opts.limit : 10;
     const partition = opts.partition ?? 0;
-    const groupId = opts.consumerGroup || `fluidcloud-js-sdk-${randomUUID()}`;
+    const groupId = opts.consumerGroup || `fluidcloud-javascript-sdk-${randomUUID()}`;
     const consumer = this.kafka.consumer({ groupId });
     const records: StreamRecord[] = [];
     let resolveWait: () => void;
