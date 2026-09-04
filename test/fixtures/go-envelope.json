@@ -1,0 +1,13 @@
+{
+  "encryptedCredentials": "pdFlxoIWqHDA8ffAFVkr1nTwUc5/OsCtw3xKVgdlV6FTwsaapskgJ+gjfj9UVZpO3rE0jNAS7cbtdKB2NpSgwDCCvdSFbxA1CppXTHWy2macpqS+pv47o6mBRohMdkMksLOjW/ecn4SIDgq+03nyN9XfY9WN/wOlcsr/wiRZvxsm70Cuzfff68mNlCibjcNisPAOB7n8UsKfM0Z6kXogEJTQkFFAEPqQi8bFCP+NGaqpTgVyg6z4JZJv2Q==",
+  "encryptedKey": "U34gB7jMJ1jH0zpED788w8ApbRd9cevHk9D5EM2RiPOzMWQxIgdfo+NQF30umK5pecKEB+mOwX+1QWt4QkylxKAUmO1CDLv5zEmmqFCXZimpDfpM/cjDXOBTVaEkvaqeyjP6tY8EKmtwdtEKJhk0lYcC2Y35iIjMW2GDMC4o+z19yiMeDu1G/j9guW5C02n+15CTvMLFnEALVGefGQ7Gy5E5/bESa+AyBrtwmj/PoYdmoig7O4z386rUUENzrXEhNTgkaal+LllgvesbNaDd+PlhqAUZtjZjcU0RyfxajaWCbstqb2kc2V1/Gy9TQRuMZN7MlOfDV/TNtJIpmc3n4A==",
+  "expectedCredentials": {
+    "accessKey": "AKIAIOSFODNN7EXAMPLE",
+    "authMode": "access_key",
+    "secretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    "sessionToken": "FQoGZXIvYXdzEExampleSessionToken"
+  },
+  "nonce": "7lyg+/7uE3As1s1p",
+  "provider": "aws",
+  "region": "us-east-1"
+}
