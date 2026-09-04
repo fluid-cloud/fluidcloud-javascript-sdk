@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.log
+.env
+TEST_RESULTS.md
+test_results.json
