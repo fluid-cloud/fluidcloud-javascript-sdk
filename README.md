@@ -65,24 +65,69 @@ if (client.hasSearch) {
 Reading a service that was not created throws rather than returning undefined,
 so a typo surfaces immediately.
 
-### Which options each service needs
+### What `options` is, and what it is not
 
-| service | AWS | Azure | GCP | OCI |
+`options` is **not credentials.** Your cloud credentials come from FluidCloud
+automatically — the entity you name in `entityId` decides the provider and
+carries the keys, and the SDK fetches them encrypted at construction. You never
+put an access key, a client secret or a private key in here.
+
+What `options` carries is the handful of **coordinates FluidCloud cannot know for
+you**: *which* storage account, *which* vault, *which* Redis endpoint. AWS mostly
+needs none of them, because an S3 bucket or an SSM parameter is addressable from
+the account alone. Azure and OCI need more, because a blob lives inside a storage
+account and a secret lives inside a named vault.
+
+### What each service needs before it switches on
+
+A service whose requirement is missing is simply not created, and its `has*` flag
+is `false`. Nothing throws until you reach for it.
+
+| Service | AWS | Azure | GCP | OCI |
 |---|---|---|---|---|
-| storage | — | `storageAccount`, `storageAccountKey` (for SAS) | — | `namespace` |
-| secrets | — | `keyVaultName` | — | `vaultOcid`, `compartment`, `keyOcid` |
-| parameters | — | `appConfigEndpoint` | — | `vaultOcid`, `compartment` |
-| messaging / queue | — | `serviceBusNamespace` | — | `compartment` |
-| email | — | `acsEndpoint`, `acsKey` | *unsupported* | `compartment` |
-| monitoring | — | `resourceGroup`, `logAnalyticsWorkspaceId`, `dataCollectionEndpoint` | — | `compartment` |
-| audit | — | — | — | `compartment` |
-| streaming | `mskBootstrapServers` (else Kinesis) | `eventHubsNamespace`, `resourceGroup` | — | `compartment` |
-| cdn | — | `cdnProfileName`, `resourceGroup` | *unsupported* | *unsupported* |
-| identity | — | — | — | `identityDomainEndpoint` |
-| cache | `redisEndpoint`, `redisPassword`, `redisTls`, `redisDb` | same, TLS always on | same | same |
-| search | `searchEndpoint` | `searchEndpoint`, `searchApiKey` | *unsupported* | `searchEndpoint`, `searchUsername`, `searchPassword` |
+| storage | nothing | `storageAccount` | nothing | `namespace` |
+| secrets | nothing | `keyVaultName` | nothing | `vaultOcid` + `compartment` |
+| parameters | nothing | `appConfigEndpoint` | nothing | `vaultOcid` + `compartment` |
+| messaging | nothing | `serviceBusNamespace` | nothing | nothing |
+| queue | nothing | `serviceBusNamespace` | nothing | nothing |
+| email | nothing | `acsEndpoint` + `acsKey` | nothing † | nothing |
+| monitoring | nothing | nothing | nothing | nothing |
+| audit | nothing | nothing | nothing | nothing |
+| streaming | nothing | `eventHubsNamespace` | nothing | nothing |
+| cdn | nothing | `cdnProfileName` | nothing | nothing † |
+| identity | nothing | nothing | nothing | `identityDomainEndpoint` |
+| cache | `redisEndpoint` | `redisEndpoint` | `redisEndpoint` | `redisEndpoint` |
+| search | `searchEndpoint` | `searchEndpoint` + `searchApiKey` | never ‡ | `searchEndpoint` |
 
----
+**†** The service is created and `has*` is `true`, but the cloud has no such
+product, so every method throws `UnsupportedError`. GCP has no email service and
+OCI has no CDN.
+
+**‡** GCP has no managed OpenSearch, so `search` is never created there —
+`hasSearch` stays `false` whatever you pass.
+
+On OCI, `compartment` falls back to the compartment on the entity itself, so you
+usually only pass it to target a different one.
+
+### Options that unlock specific operations
+
+These do not gate a whole service. Without them the service still works, but
+certain calls fail or behave differently.
+
+| Option | Provider | What it unlocks |
+|---|---|---|
+| `storageAccountKey` | Azure | Signs presigned URLs with a shared key. Without it the SDK falls back to a user-delegation key over AAD. |
+| `keyOcid` | OCI | The master encryption key used to **create** a new Vault secret. Reads and updates work without it. |
+| `resourceGroup` | Azure | Alarms and log groups on monitoring, plus CDN and Event Hubs management. |
+| `logAnalyticsWorkspaceId` | Azure | `monitoring.getLogs`. |
+| `dataCollectionEndpoint` | Azure | `monitoring.putMetrics` and `monitoring.putLogs`. |
+| `mskBootstrapServers` | AWS | Selects MSK for streaming. Left empty, streaming uses Kinesis. |
+| `searchUsername` / `searchPassword` | OCI | Basic auth for OCI OpenSearch. |
+| `redisPassword` / `redisTls` / `redisDb` | all | Redis auth, TLS and logical database. Azure always uses TLS. |
+| `region` | AWS, OCI | Overrides the entity's region. |
+
+Which methods each provider supports is a separate question, answered in full by
+[`docs/API_SURFACE.md`](./docs/API_SURFACE.md) and by `bun run coverage`.
 
 ## Services
 
