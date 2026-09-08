@@ -204,7 +204,7 @@ The entity decides the provider. The same code above runs against S3, Azure Blob
 GCS or OCI Object Storage with no changes.
 
 For the same work written directly against each cloud's SDK, side by side with
-this one, see [`examples/BEFORE_AND_AFTER.md`](./examples/BEFORE_AND_AFTER.md).
+this one, see [`examples/README.md`](./examples/README.md).
 
 ---
 
@@ -322,9 +322,9 @@ const id = await client.queue.sendMessage(queueId, JSON.stringify({ job: 'resize
 const messages = await client.queue.receiveMessages(queueId, 10, { waitTimeSeconds: 20 });
 ```
 
-Runnable examples for every service are in [`examples/`](./examples), and
-[`examples/BEFORE_AND_AFTER.md`](./examples/BEFORE_AND_AFTER.md) shows the same
-tasks written against the raw cloud SDKs for comparison.
+Runnable examples for every service are in [`examples/`](./examples), whose
+[README](./examples/README.md) also shows the same tasks written against the raw
+cloud SDKs for comparison.
 
 ---
 
