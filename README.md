@@ -1,8 +1,8 @@
 # FluidCloud JavaScript SDK
 
 [![CI](https://github.com/fluid-cloud/fluidcloud-javascript-sdk/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/fluid-cloud/fluidcloud-javascript-sdk/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@fluid-cloud/fluidcloud-javascript-sdk)](https://www.npmjs.com/package/@fluid-cloud/fluidcloud-javascript-sdk)
-[![node](https://img.shields.io/node/v/@fluid-cloud/fluidcloud-javascript-sdk)](https://nodejs.org)
+[![npm](https://img.shields.io/npm/v/@fluidcloud/javascript-sdk)](https://www.npmjs.com/package/@fluidcloud/javascript-sdk)
+[![node](https://img.shields.io/node/v/@fluidcloud/javascript-sdk)](https://nodejs.org)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
 One API across AWS, Azure, GCP and OCI. Credentials come from FluidCloud, never
@@ -86,7 +86,7 @@ in the portal, without redeploying anything.
 ## Installing
 
 ```bash
-bun add @fluid-cloud/fluidcloud-javascript-sdk    # or npm install
+bun add @fluidcloud/javascript-sdk    # or npm install
 ```
 
 Node 18 or newer. TypeScript types are bundled; ESM and CJS both work.
@@ -187,7 +187,7 @@ four providers back the cache with Redis.
 ## Quick start
 
 ```ts
-import { createClient } from '@fluid-cloud/fluidcloud-javascript-sdk';
+import { createClient } from '@fluidcloud/javascript-sdk';
 
 const client = await createClient({
   apiKey: process.env.API_KEY!,     // "fc_<keyid>_<secret>", from Settings → API Keys
@@ -338,7 +338,7 @@ mechanisms tell you where you stand:
 client.storage.supports('multipart');   // false on GCS
 
 // 2. catch a typed error
-import { isUnsupported } from '@fluid-cloud/fluidcloud-javascript-sdk';
+import { isUnsupported } from '@fluidcloud/javascript-sdk';
 try {
   await client.storage.setTags(bucket, key, { owner: 'platform' });
 } catch (err) {
