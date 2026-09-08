@@ -151,9 +151,16 @@ export class CloudEntity {
     if (this.provider !== PROVIDER_GCP) {
       throw new ProviderError(this.provider, 'getGcpCredentials', new InvalidCredentialsError());
     }
+    // The server returns the service-account JSON under "credentials"; accept
+    // "serviceAccountJson" too, which is what earlier payloads used.
+    const serviceAccountJson = this.str('serviceAccountJson') ?? this.str('credentials');
+    if (!serviceAccountJson) {
+      throw new ProviderError('gcp', 'getGcpCredentials', new InvalidCredentialsError());
+    }
+
     const creds: GcpCredentials = {
       projectId: this.require('projectId', 'gcp', 'getGcpCredentials'),
-      serviceAccountJson: this.require('serviceAccountJson', 'gcp', 'getGcpCredentials'),
+      serviceAccountJson,
       location: this.region,
     };
     const location = this.str('location');
