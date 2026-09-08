@@ -51,6 +51,43 @@ describe('CloudEntity credential extraction', () => {
   });
 });
 
+// fcserver emits the GCP service-account JSON as "credentials" (falling back to
+// "serviceAccountKey") and the OCI compartment as "compartmentId" — not the
+// "serviceAccountJson" and "compartmentOcid" names this SDK originally read,
+// which silently yielded empty values.
+describe('server credential key aliases', () => {
+  it.each([
+    ['server key credentials', { projectId: 'p', credentials: '{json}' }],
+    ['server fallback serviceAccountKey', { projectId: 'p', serviceAccountKey: '{json}' }],
+    ['legacy serviceAccountJson', { projectId: 'p', serviceAccountJson: '{json}' }],
+  ])('gcp reads the service account from %s', (_name, credentials) => {
+    expect(entity('gcp', credentials).getGcpCredentials().serviceAccountJson).toBe('{json}');
+  });
+
+  it('gcp prefers the legacy name when both are present', () => {
+    const creds = entity('gcp', { projectId: 'p', serviceAccountJson: 'old', credentials: 'new' });
+    expect(creds.getGcpCredentials().serviceAccountJson).toBe('old');
+  });
+
+  it('gcp still throws when no service-account key is present at all', () => {
+    expect(() => entity('gcp', { projectId: 'p' }).getGcpCredentials()).toThrow(ProviderError);
+  });
+
+  const ociBase = { tenancyOcid: 't', userOcid: 'u', fingerprint: 'f', privateKey: 'k' };
+
+  it.each([
+    ['server key compartmentId', { compartmentId: 'ocid1.compartment.new' }, 'ocid1.compartment.new'],
+    ['legacy compartmentOcid', { compartmentOcid: 'ocid1.compartment.old' }, 'ocid1.compartment.old'],
+    ['legacy name wins when both present', { compartmentOcid: 'old', compartmentId: 'new' }, 'old'],
+  ])('oci reads the compartment from %s', (_name, extra, want) => {
+    expect(entity('oci', { ...ociBase, ...extra }).getOciCredentials().compartmentOcid).toBe(want);
+  });
+
+  it('oci leaves the compartment unset when neither key is present', () => {
+    expect(entity('oci', ociBase).getOciCredentials().compartmentOcid).toBeUndefined();
+  });
+});
+
 describe('Fetcher', () => {
   afterEach(() => vi.unstubAllGlobals());
 
