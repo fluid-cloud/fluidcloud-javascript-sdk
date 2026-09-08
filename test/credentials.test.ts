@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-
-import { CloudEntity, Fetcher } from '../src/credentials/index.js';
 import { encryptEnvelope } from '../src/credentials/envelope.js';
+import { CloudEntity, Fetcher } from '../src/credentials/index.js';
 import { AccessDeniedError, EntityNotFoundError, ProviderError } from '../src/errors.js';
 
 function entity(provider: string, credentials: Record<string, unknown>, region = 'us-east-1'): CloudEntity {
@@ -11,7 +10,12 @@ function entity(provider: string, credentials: Record<string, unknown>, region =
 describe('CloudEntity credential extraction', () => {
   it('reads static AWS access keys', () => {
     const creds = entity('aws', { accessKey: 'AKIA', secretAccessKey: 'shh', sessionToken: 'tok' }).getAwsCredentials();
-    expect(creds).toMatchObject({ accessKey: 'AKIA', secretAccessKey: 'shh', sessionToken: 'tok', region: 'us-east-1' });
+    expect(creds).toMatchObject({
+      accessKey: 'AKIA',
+      secretAccessKey: 'shh',
+      sessionToken: 'tok',
+      region: 'us-east-1',
+    });
   });
 
   it('reads an AWS assume-role entity without access keys', () => {
@@ -27,8 +31,18 @@ describe('CloudEntity credential extraction', () => {
   it.each([
     ['aws missing secret', 'aws', { accessKey: 'AKIA' }, (e: CloudEntity) => e.getAwsCredentials()],
     ['aws assume-role missing arn', 'aws', { authMode: 'assume_role' }, (e: CloudEntity) => e.getAwsCredentials()],
-    ['azure missing clientSecret', 'azure', { tenantId: 't', clientId: 'c', subscriptionId: 's' }, (e: CloudEntity) => e.getAzureCredentials()],
-    ['oci missing privateKey', 'oci', { tenancyOcid: 't', userOcid: 'u', fingerprint: 'f' }, (e: CloudEntity) => e.getOciCredentials()],
+    [
+      'azure missing clientSecret',
+      'azure',
+      { tenantId: 't', clientId: 'c', subscriptionId: 's' },
+      (e: CloudEntity) => e.getAzureCredentials(),
+    ],
+    [
+      'oci missing privateKey',
+      'oci',
+      { tenancyOcid: 't', userOcid: 'u', fingerprint: 'f' },
+      (e: CloudEntity) => e.getOciCredentials(),
+    ],
     ['gcp missing serviceAccountJson', 'gcp', { projectId: 'p' }, (e: CloudEntity) => e.getGcpCredentials()],
   ])('rejects %s', (_name, provider, credentials, extract) => {
     expect(() => extract(entity(provider, credentials))).toThrow(ProviderError);
@@ -44,9 +58,15 @@ describe('CloudEntity credential extraction', () => {
   });
 
   it('falls back to the entity region for GCP location and prefers an explicit one', () => {
-    expect(entity('gcp', { projectId: 'p', serviceAccountJson: '{}' }, 'europe-west1').getGcpCredentials().location).toBe('europe-west1');
     expect(
-      entity('gcp', { projectId: 'p', serviceAccountJson: '{}', location: 'asia-south1' }, 'europe-west1').getGcpCredentials().location,
+      entity('gcp', { projectId: 'p', serviceAccountJson: '{}' }, 'europe-west1').getGcpCredentials().location,
+    ).toBe('europe-west1');
+    expect(
+      entity(
+        'gcp',
+        { projectId: 'p', serviceAccountJson: '{}', location: 'asia-south1' },
+        'europe-west1',
+      ).getGcpCredentials().location,
     ).toBe('asia-south1');
   });
 });

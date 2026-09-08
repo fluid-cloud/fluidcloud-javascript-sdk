@@ -27,7 +27,10 @@ await streaming.putRecords(streamId, [
 console.log('produced 1 record');
 
 const records = await streaming.getRecords(streamId, { partition: 0, limit: 5, consumerGroup: 'example-group' });
-console.log('consumed records:', records.map((r) => r.value.toString()));
+console.log(
+  'consumed records:',
+  records.map((r) => r.value.toString()),
+);
 
 if (records.length > 0) {
   const last = records[records.length - 1]!;
@@ -39,7 +42,10 @@ const info = await streaming.getStream(streamId);
 console.log('stream info:', info);
 
 const streams = await streaming.listStreams();
-console.log('all streams:', streams.map((s) => s.name));
+console.log(
+  'all streams:',
+  streams.map((s) => s.name),
+);
 
 await streaming.deleteConsumerGroup(streamId, 'example-group');
 await streaming.deleteStream(streamId);

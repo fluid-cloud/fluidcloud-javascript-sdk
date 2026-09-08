@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { NotFoundError } from '../src/errors.js';
 import type { AwsCredentials, AzureCredentials, GcpCredentials, OciCredentials } from '../src/credentials/index.js';
+import { NotFoundError } from '../src/errors.js';
 
 const sqsSend = vi.fn();
 vi.mock('@aws-sdk/client-sqs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@aws-sdk/client-sqs')>();
-  return { ...actual, SQSClient: vi.fn().mockImplementation(function () { return { send: sqsSend }; }) };
+  return {
+    ...actual,
+    SQSClient: vi.fn().mockImplementation(function () {
+      return { send: sqsSend };
+    }),
+  };
 });
 
 const sbAdmin = {
@@ -19,8 +23,12 @@ const sbSender = { sendMessages: vi.fn(), close: vi.fn() };
 const sbReceiver = { receiveMessages: vi.fn(), completeMessage: vi.fn() };
 const sbClient = { createSender: vi.fn(() => sbSender), createReceiver: vi.fn(() => sbReceiver) };
 vi.mock('@azure/service-bus', () => ({
-  ServiceBusAdministrationClient: vi.fn().mockImplementation(function () { return sbAdmin; }),
-  ServiceBusClient: vi.fn().mockImplementation(function () { return sbClient; }),
+  ServiceBusAdministrationClient: vi.fn().mockImplementation(function () {
+    return sbAdmin;
+  }),
+  ServiceBusClient: vi.fn().mockImplementation(function () {
+    return sbClient;
+  }),
 }));
 
 const pubsubTopic = { delete: vi.fn(), publishMessage: vi.fn() };
@@ -34,15 +42,25 @@ const pubsub = {
 };
 const subscriberClient = { pull: vi.fn(), acknowledge: vi.fn() };
 vi.mock('@google-cloud/pubsub', () => ({
-  PubSub: vi.fn().mockImplementation(function () { return pubsub; }),
-  v1: { SubscriberClient: vi.fn().mockImplementation(function () { return subscriberClient; }) },
+  PubSub: vi.fn().mockImplementation(function () {
+    return pubsub;
+  }),
+  v1: {
+    SubscriberClient: vi.fn().mockImplementation(function () {
+      return subscriberClient;
+    }),
+  },
 }));
 
 const ociAdmin = { createQueue: vi.fn(), deleteQueue: vi.fn(), listQueues: vi.fn(), getQueue: vi.fn(), regionId: '' };
 const ociData = { putMessages: vi.fn(), getMessages: vi.fn(), deleteMessage: vi.fn(), regionId: '' };
 vi.mock('oci-queue', () => ({
-  QueueAdminClient: vi.fn().mockImplementation(function () { return ociAdmin; }),
-  QueueClient: vi.fn().mockImplementation(function () { return ociData; }),
+  QueueAdminClient: vi.fn().mockImplementation(function () {
+    return ociAdmin;
+  }),
+  QueueClient: vi.fn().mockImplementation(function () {
+    return ociData;
+  }),
   models: {},
 }));
 
@@ -145,9 +163,7 @@ describe('ServiceBusQueue (azure)', () => {
     expect(msgs).toEqual([{ id: 'm1', body: 'hello', receiptHandle: 'lock-1', attributes: {} }]);
 
     await q.deleteMessage('q1', 'lock-1');
-    expect(sbReceiver.completeMessage).toHaveBeenCalledWith(
-      expect.objectContaining({ lockToken: 'lock-1' }),
-    );
+    expect(sbReceiver.completeMessage).toHaveBeenCalledWith(expect.objectContaining({ lockToken: 'lock-1' }));
   });
 
   it('throws NotFoundError when the receipt handle was never received', async () => {

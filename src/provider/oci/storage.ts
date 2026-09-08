@@ -1,7 +1,7 @@
 import type { Readable } from 'node:stream';
 
 import * as common from 'oci-common';
-import { ObjectStorageClient, models } from 'oci-objectstorage';
+import { models, ObjectStorageClient } from 'oci-objectstorage';
 
 import type { OciCredentials } from '../../credentials/index.js';
 import { NotFoundError, wrapProviderError } from '../../errors.js';
@@ -14,8 +14,8 @@ import type {
   StorageDeleteError,
   StorageListOptions,
   StorageObject,
-  StoragePutOptions,
   StorageOperation,
+  StoragePutOptions,
   UploadOptions,
 } from '../types/storage.js';
 import { ociAuthProvider } from './auth.js';
@@ -82,7 +82,13 @@ export class ObjectStorage implements Storage {
     }
   }
 
-  async putStream(bucket: string, key: string, reader: Readable, size: number, opts?: StoragePutOptions): Promise<void> {
+  async putStream(
+    bucket: string,
+    key: string,
+    reader: Readable,
+    size: number,
+    opts?: StoragePutOptions,
+  ): Promise<void> {
     try {
       await this.client.putObject({
         namespaceName: this.namespace,
@@ -234,7 +240,13 @@ export class ObjectStorage implements Storage {
     }
   }
 
-  async multipartUploadPart(bucket: string, key: string, uploadId: string, partNumber: number, data: Buffer | Uint8Array): Promise<string> {
+  async multipartUploadPart(
+    bucket: string,
+    key: string,
+    uploadId: string,
+    partNumber: number,
+    data: Buffer | Uint8Array,
+  ): Promise<string> {
     try {
       const buffer = Buffer.from(data);
       const resp = await this.client.uploadPart({
@@ -270,14 +282,20 @@ export class ObjectStorage implements Storage {
 
   async multipartAbort(bucket: string, key: string, uploadId: string): Promise<void> {
     try {
-      await this.client.abortMultipartUpload({ namespaceName: this.namespace, bucketName: bucket, objectName: key, uploadId });
+      await this.client.abortMultipartUpload({
+        namespaceName: this.namespace,
+        bucketName: bucket,
+        objectName: key,
+        uploadId,
+      });
     } catch (err) {
       wrapProviderError('oci', 'AbortMultipartUpload', err);
     }
   }
 
   async upload(bucket: string, key: string, reader: Readable, size: number, opts?: UploadOptions): Promise<void> {
-    const threshold = opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
+    const threshold =
+      opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
     const partSize = opts?.partSize && opts.partSize > 0 ? opts.partSize : DEFAULT_PART_SIZE;
 
     if (size > 0 && size < threshold) {
@@ -509,7 +527,11 @@ export class ObjectStorage implements Storage {
         resp.workRequest.status === models.WorkRequest.Status.Failed ||
         resp.workRequest.status === models.WorkRequest.Status.Canceled
       ) {
-        wrapProviderError('oci', 'WorkRequest', new Error(`work request ${workRequestId} ended with status ${resp.workRequest.status}`));
+        wrapProviderError(
+          'oci',
+          'WorkRequest',
+          new Error(`work request ${workRequestId} ended with status ${resp.workRequest.status}`),
+        );
       }
       await sleep(1000);
     }

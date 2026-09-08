@@ -2,10 +2,10 @@ import {
   AccessDeniedError,
   EntityNotFoundError,
   InvalidCredentialsError,
-  ProviderError,
   messageOf,
+  ProviderError,
 } from '../errors.js';
-import { decryptEnvelope, generateEphemeralKeyPair, type EnvelopeResponse } from './envelope.js';
+import { decryptEnvelope, type EnvelopeResponse, generateEphemeralKeyPair } from './envelope.js';
 
 export * from './envelope.js';
 
@@ -259,7 +259,11 @@ export class Fetcher {
     try {
       apiResp = JSON.parse(body) as SecureCredentialResponse;
     } catch (err) {
-      throw new ProviderError('fcserver', 'getCloudEntitySecure', new Error(`failed to parse API response: ${messageOf(err)}`));
+      throw new ProviderError(
+        'fcserver',
+        'getCloudEntitySecure',
+        new Error(`failed to parse API response: ${messageOf(err)}`),
+      );
     }
 
     const envelope: EnvelopeResponse = {

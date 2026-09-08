@@ -1,19 +1,30 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-import { UnsupportedError, NotFoundError } from '../src/errors.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AwsCredentials, AzureCredentials, GcpCredentials, OciCredentials } from '../src/credentials/index.js';
+import { NotFoundError, UnsupportedError } from '../src/errors.js';
 
 const cwSend = vi.fn();
 const cwLogsSend = vi.fn();
 
 vi.mock('@aws-sdk/client-cloudwatch', async () => {
   const actual = await vi.importActual<typeof import('@aws-sdk/client-cloudwatch')>('@aws-sdk/client-cloudwatch');
-  return { ...actual, CloudWatchClient: vi.fn().mockImplementation(function () { return { send: cwSend }; }) };
+  return {
+    ...actual,
+    CloudWatchClient: vi.fn().mockImplementation(function () {
+      return { send: cwSend };
+    }),
+  };
 });
 
 vi.mock('@aws-sdk/client-cloudwatch-logs', async () => {
-  const actual = await vi.importActual<typeof import('@aws-sdk/client-cloudwatch-logs')>('@aws-sdk/client-cloudwatch-logs');
-  return { ...actual, CloudWatchLogsClient: vi.fn().mockImplementation(function () { return { send: cwLogsSend }; }) };
+  const actual = await vi.importActual<typeof import('@aws-sdk/client-cloudwatch-logs')>(
+    '@aws-sdk/client-cloudwatch-logs',
+  );
+  return {
+    ...actual,
+    CloudWatchLogsClient: vi.fn().mockImplementation(function () {
+      return { send: cwLogsSend };
+    }),
+  };
 });
 
 const gcpWrite = vi.fn().mockResolvedValue([{}]);
@@ -157,9 +168,7 @@ describe('aws CloudWatchMonitoring', () => {
   it('putLogs tolerates an already-existing log stream', async () => {
     const { ResourceAlreadyExistsException } = await import('@aws-sdk/client-cloudwatch-logs');
     cwLogsSend
-      .mockRejectedValueOnce(
-        new ResourceAlreadyExistsException({ message: 'exists', $metadata: {} }),
-      )
+      .mockRejectedValueOnce(new ResourceAlreadyExistsException({ message: 'exists', $metadata: {} }))
       .mockResolvedValueOnce({});
     const m = new CloudWatchMonitoring(awsCreds);
     await expect(
@@ -173,7 +182,20 @@ describe('gcp CloudMonitoring — metrics and alarms are unsupported', () => {
   const cases: Array<[string, (m: InstanceType<typeof CloudMonitoring>) => Promise<unknown>]> = [
     ['putMetrics', (m) => m.putMetrics('ns', [])],
     ['getMetrics', (m) => m.getMetrics('ns', 'm')],
-    ['createAlarm', (m) => m.createAlarm({ name: 'a', metricName: 'm', namespace: 'ns', threshold: 1, comparisonOperator: '>', evaluationPeriods: 1, period: 60, statistic: 'Average' })],
+    [
+      'createAlarm',
+      (m) =>
+        m.createAlarm({
+          name: 'a',
+          metricName: 'm',
+          namespace: 'ns',
+          threshold: 1,
+          comparisonOperator: '>',
+          evaluationPeriods: 1,
+          period: 60,
+          statistic: 'Average',
+        }),
+    ],
     ['deleteAlarm', (m) => m.deleteAlarm('a')],
     ['listAlarms', (m) => m.listAlarms()],
   ];
@@ -281,7 +303,11 @@ describe('oci OciMonitoring', () => {
 
   it.each([
     ['the log group does not exist', { items: [{ displayName: 'other', id: 'ocid1.loggroup.2' }] }, { items: [] }],
-    ['the log does not exist in the group', { items: [{ displayName: 'my-logs', id: 'ocid1.loggroup.1' }] }, { items: [{ displayName: 'other', id: 'ocid1.log.2' }] }],
+    [
+      'the log does not exist in the group',
+      { items: [{ displayName: 'my-logs', id: 'ocid1.loggroup.1' }] },
+      { items: [{ displayName: 'other', id: 'ocid1.log.2' }] },
+    ],
   ])('putLogs fails clearly when %s', async (_name, groups, logs) => {
     ociListLogGroups.mockResolvedValue(groups);
     ociListLogs.mockResolvedValue(logs);
@@ -321,7 +347,20 @@ describe('azure AzureMonitoring — required configuration is enforced', () => {
   const missingWorkspace = new AzureMonitoring(azureCreds, 'rg', '', 'https://dce.example.com');
 
   const cases: Array<[string, () => Promise<unknown>]> = [
-    ['createAlarm without resourceGroup', () => missingResourceGroup.createAlarm({ name: 'a', metricName: 'm', namespace: 'ns', threshold: 1, comparisonOperator: 'GreaterThan', evaluationPeriods: 1, period: 60, statistic: 'Average' })],
+    [
+      'createAlarm without resourceGroup',
+      () =>
+        missingResourceGroup.createAlarm({
+          name: 'a',
+          metricName: 'm',
+          namespace: 'ns',
+          threshold: 1,
+          comparisonOperator: 'GreaterThan',
+          evaluationPeriods: 1,
+          period: 60,
+          statistic: 'Average',
+        }),
+    ],
     ['deleteAlarm without resourceGroup', () => missingResourceGroup.deleteAlarm('a')],
     ['createLogGroup without resourceGroup', () => missingResourceGroup.createLogGroup('lg')],
     ['deleteLogGroup without resourceGroup', () => missingResourceGroup.deleteLogGroup('lg')],

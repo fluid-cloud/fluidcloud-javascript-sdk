@@ -3,9 +3,9 @@ import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws-v3';
 
 import type { AwsCredentials } from '../../credentials/index.js';
 import { InvalidCredentialsError } from '../../errors.js';
-import type { Search } from '../types/search.js';
 import { OpenSearchBase } from '../shared/opensearch.js';
-import { awsClientConfig, type AwsClientConfig } from './auth.js';
+import type { Search } from '../types/search.js';
+import { type AwsClientConfig, awsClientConfig } from './auth.js';
 
 function toCredentialsGetter(credentials: AwsClientConfig['credentials']) {
   return async () => (typeof credentials === 'function' ? credentials() : credentials);

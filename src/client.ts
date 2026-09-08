@@ -1,12 +1,6 @@
-import { validateConfig, type Config } from './config.js';
-import {
-  PROVIDER_AWS,
-  PROVIDER_AZURE,
-  PROVIDER_GCP,
-  PROVIDER_OCI,
-  type Provider,
-} from './credentials/index.js';
-import { FluidCloudError, ErrorCode } from './errors.js';
+import { type Config, validateConfig } from './config.js';
+import { PROVIDER_AWS, PROVIDER_AZURE, PROVIDER_GCP, PROVIDER_OCI, type Provider } from './credentials/index.js';
+import { ErrorCode, FluidCloudError } from './errors.js';
 import {
   CloudServiceInitializer,
   getCapabilities,
@@ -116,7 +110,8 @@ export class Client {
   }
 
   get secrets(): Secrets {
-    if (!this._secrets) throw notInitialized('secrets', 'ensure keyVaultName is provided for Azure, vaultOcid and compartment for OCI');
+    if (!this._secrets)
+      throw notInitialized('secrets', 'ensure keyVaultName is provided for Azure, vaultOcid and compartment for OCI');
     return this._secrets;
   }
   get hasSecrets(): boolean {
@@ -124,7 +119,11 @@ export class Client {
   }
 
   get parameters(): Parameters {
-    if (!this._parameters) throw notInitialized('parameters', 'ensure appConfigEndpoint is provided for Azure, vaultOcid and compartment for OCI');
+    if (!this._parameters)
+      throw notInitialized(
+        'parameters',
+        'ensure appConfigEndpoint is provided for Azure, vaultOcid and compartment for OCI',
+      );
     return this._parameters;
   }
   get hasParameters(): boolean {
@@ -259,45 +258,37 @@ export async function createClient(cfg: Config, opts: ClientOptions = {}): Promi
       () => initializer.createParameters(id, options),
     );
 
-    const messaging = await maybe(
-      provider !== PROVIDER_AZURE || !!options.serviceBusNamespace,
-      () => initializer.createMessaging(id, options),
+    const messaging = await maybe(provider !== PROVIDER_AZURE || !!options.serviceBusNamespace, () =>
+      initializer.createMessaging(id, options),
     );
 
-    const queue = await maybe(
-      provider !== PROVIDER_AZURE || !!options.serviceBusNamespace,
-      () => initializer.createQueue(id, options),
+    const queue = await maybe(provider !== PROVIDER_AZURE || !!options.serviceBusNamespace, () =>
+      initializer.createQueue(id, options),
     );
 
-    const email = await maybe(
-      provider !== PROVIDER_AZURE || (!!options.acsEndpoint && !!options.acsKey),
-      () => initializer.createEmail(id, options),
+    const email = await maybe(provider !== PROVIDER_AZURE || (!!options.acsEndpoint && !!options.acsKey), () =>
+      initializer.createEmail(id, options),
     );
 
     const monitoring = await maybe(true, () => initializer.createMonitoring(id, options));
     const audit = await maybe(true, () => initializer.createAudit(id, options));
 
-    const streaming = await maybe(
-      provider !== PROVIDER_AZURE || !!options.eventHubsNamespace,
-      () => initializer.createStreaming(id, options),
+    const streaming = await maybe(provider !== PROVIDER_AZURE || !!options.eventHubsNamespace, () =>
+      initializer.createStreaming(id, options),
     );
 
-    const cdn = await maybe(
-      provider !== PROVIDER_AZURE || !!options.cdnProfileName,
-      () => initializer.createCdn(id, options),
+    const cdn = await maybe(provider !== PROVIDER_AZURE || !!options.cdnProfileName, () =>
+      initializer.createCdn(id, options),
     );
 
-    const identity = await maybe(
-      provider !== PROVIDER_OCI || !!options.identityDomainEndpoint,
-      () => initializer.createIdentity(id, options),
+    const identity = await maybe(provider !== PROVIDER_OCI || !!options.identityDomainEndpoint, () =>
+      initializer.createIdentity(id, options),
     );
 
     const cache = await maybe(!!options.redisEndpoint, () => initializer.createCache(id, options));
 
     const search = await maybe(
-      !!options.searchEndpoint &&
-        provider !== PROVIDER_GCP &&
-        (provider !== PROVIDER_AZURE || !!options.searchApiKey),
+      !!options.searchEndpoint && provider !== PROVIDER_GCP && (provider !== PROVIDER_AZURE || !!options.searchApiKey),
       () => initializer.createSearch(id, options),
     );
 

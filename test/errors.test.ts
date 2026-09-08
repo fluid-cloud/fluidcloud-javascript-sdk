@@ -4,15 +4,15 @@ import {
   AccessDeniedError,
   ErrorCode,
   FluidCloudError,
-  NotFoundError,
-  ProviderError,
-  UnsupportedError,
-  ValidationError,
   hasCode,
   isAccessDenied,
   isNotFound,
   isUnsupported,
   messageOf,
+  NotFoundError,
+  ProviderError,
+  UnsupportedError,
+  ValidationError,
   wrapProviderError,
 } from '../src/errors.js';
 
@@ -37,10 +37,20 @@ describe('error taxonomy', () => {
   });
 
   it.each([
-    ['without an alternative', '', 'gcp: multipartCreate is not supported on this provider. GCS has no S3-style multipart.'],
-    ['with an alternative', 'use upload()', 'gcp: multipartCreate is not supported on this provider. GCS has no S3-style multipart. Recommended alternative: use upload()'],
+    [
+      'without an alternative',
+      '',
+      'gcp: multipartCreate is not supported on this provider. GCS has no S3-style multipart.',
+    ],
+    [
+      'with an alternative',
+      'use upload()',
+      'gcp: multipartCreate is not supported on this provider. GCS has no S3-style multipart. Recommended alternative: use upload()',
+    ],
   ])('formats an unsupported error %s', (_name, alternative, expected) => {
-    expect(new UnsupportedError('gcp', 'multipartCreate', 'GCS has no S3-style multipart.', alternative).message).toBe(expected);
+    expect(new UnsupportedError('gcp', 'multipartCreate', 'GCS has no S3-style multipart.', alternative).message).toBe(
+      expected,
+    );
   });
 
   it('finds a code through the cause chain', () => {

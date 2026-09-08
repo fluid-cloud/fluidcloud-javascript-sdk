@@ -6,8 +6,8 @@ import type {
   GetRecordsOptions,
   StreamCreateOptions,
   StreamInfo,
-  StreamRecord,
   Streaming,
+  StreamRecord,
 } from '../types/streaming.js';
 import { gcpClientConfig } from './auth.js';
 

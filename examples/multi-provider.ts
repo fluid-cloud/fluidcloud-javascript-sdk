@@ -1,4 +1,4 @@
-import { createClient, isUnsupported, type Client } from '../src/index.js';
+import { type Client, createClient, isUnsupported } from '../src/index.js';
 
 // One code path, four clouds: the same calls run against whichever provider the
 // entity happens to be, and capability gaps surface as UnsupportedError.

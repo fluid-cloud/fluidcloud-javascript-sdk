@@ -1,5 +1,10 @@
 # FluidCloud JavaScript SDK
 
+[![CI](https://github.com/fluid-cloud/fluidcloud-javascript-sdk/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/fluid-cloud/fluidcloud-javascript-sdk/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@fluid-cloud/fluidcloud-javascript-sdk)](https://www.npmjs.com/package/@fluid-cloud/fluidcloud-javascript-sdk)
+[![node](https://img.shields.io/node/v/@fluid-cloud/fluidcloud-javascript-sdk)](https://nodejs.org)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 One API across AWS, Azure, GCP and OCI. Credentials come from FluidCloud, never
 from ambient cloud config, and are delivered envelope-encrypted so they are never
 readable in transit even if TLS is terminated by a proxy.

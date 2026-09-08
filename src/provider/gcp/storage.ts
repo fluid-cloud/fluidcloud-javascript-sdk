@@ -1,6 +1,6 @@
 import type { Readable } from 'node:stream';
 
-import { Storage as GcsClient, type File } from '@google-cloud/storage';
+import { type File, Storage as GcsClient } from '@google-cloud/storage';
 
 import type { GcpCredentials } from '../../credentials/index.js';
 import { UnsupportedError, wrapProviderError } from '../../errors.js';
@@ -13,8 +13,8 @@ import type {
   StorageDeleteError,
   StorageListOptions,
   StorageObject,
-  StoragePutOptions,
   StorageOperation,
+  StoragePutOptions,
   UploadOptions,
 } from '../types/storage.js';
 import { gcpClientConfig } from './auth.js';
@@ -38,11 +38,21 @@ function objectFromMetadata(key: string, meta: Record<string, unknown>): Storage
 }
 
 function multipartUnsupported(op: string): never {
-  throw new UnsupportedError('gcp', op, 'GCS has no S3-style multipart upload.', 'Use Upload/PutStream (resumable uploads are automatic).');
+  throw new UnsupportedError(
+    'gcp',
+    op,
+    'GCS has no S3-style multipart upload.',
+    'Use Upload/PutStream (resumable uploads are automatic).',
+  );
 }
 
 function tagsUnsupported(op: string): never {
-  throw new UnsupportedError('gcp', op, 'GCS has no object tags.', 'Use object metadata (GetMetadata/SetMetadata) instead.');
+  throw new UnsupportedError(
+    'gcp',
+    op,
+    'GCS has no object tags.',
+    'Use object metadata (GetMetadata/SetMetadata) instead.',
+  );
 }
 
 /** Google Cloud Storage. */
@@ -85,7 +95,13 @@ export class GcsStorage implements Storage {
     }
   }
 
-  async putStream(bucket: string, key: string, reader: Readable, _size: number, opts?: StoragePutOptions): Promise<void> {
+  async putStream(
+    bucket: string,
+    key: string,
+    reader: Readable,
+    _size: number,
+    opts?: StoragePutOptions,
+  ): Promise<void> {
     try {
       const writeStream = this.obj(bucket, key).createWriteStream({
         contentType: opts?.contentType,
@@ -112,7 +128,9 @@ export class GcsStorage implements Storage {
 
   async list(bucket: string, opts?: StorageListOptions): Promise<StorageObject[]> {
     try {
-      const [files] = await this.client.bucket(bucket).getFiles({ prefix: opts?.prefix, startOffset: opts?.startAfter });
+      const [files] = await this.client
+        .bucket(bucket)
+        .getFiles({ prefix: opts?.prefix, startOffset: opts?.startAfter });
       const objects = files.map((f) => objectFromMetadata(f.name, f.metadata as Record<string, unknown>));
       return opts?.maxKeys && opts.maxKeys > 0 ? objects.slice(0, opts.maxKeys) : objects;
     } catch (err) {
@@ -176,7 +194,13 @@ export class GcsStorage implements Storage {
     multipartUnsupported('MultipartCreate');
   }
 
-  async multipartUploadPart(_bucket: string, _key: string, _uploadId: string, _partNumber: number, _data: Buffer | Uint8Array): Promise<string> {
+  async multipartUploadPart(
+    _bucket: string,
+    _key: string,
+    _uploadId: string,
+    _partNumber: number,
+    _data: Buffer | Uint8Array,
+  ): Promise<string> {
     multipartUnsupported('MultipartUploadPart');
   }
 

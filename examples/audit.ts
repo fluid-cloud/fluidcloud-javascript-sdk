@@ -16,7 +16,10 @@ const events = await audit.lookupEvents({
   endTime: new Date(),
   maxResults: 20,
 });
-console.log('recent events:', events.map((e) => ({ id: e.id, name: e.name, time: e.time })));
+console.log(
+  'recent events:',
+  events.map((e) => ({ id: e.id, name: e.name, time: e.time })),
+);
 
 try {
   await audit.createTrail('example-trail', { s3BucketName: process.env.S3_BUCKET_NAME!, isMultiRegion: true });

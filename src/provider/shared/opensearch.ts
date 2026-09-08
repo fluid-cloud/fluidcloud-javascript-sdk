@@ -1,6 +1,6 @@
-import { Client } from '@opensearch-project/opensearch';
+import type { Client } from '@opensearch-project/opensearch';
 
-import { InvalidCredentialsError, wrapProviderError } from '../../errors.js';
+import { wrapProviderError } from '../../errors.js';
 import type { Search, SearchDocument, SearchHit, SearchResult } from '../types/search.js';
 
 interface RawSearchResponse {

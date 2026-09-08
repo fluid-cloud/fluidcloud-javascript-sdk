@@ -26,17 +26,21 @@ const user = await identity.createUser(poolId, {
 console.log('created user:', user);
 
 await identity.createGroup(poolId, 'demo-group').catch((err) => console.log('createGroup:', err.message));
-await identity.addUserToGroup(poolId, user.username, 'demo-group').catch((err) => console.log('addUserToGroup:', err.message));
+await identity
+  .addUserToGroup(poolId, user.username, 'demo-group')
+  .catch((err) => console.log('addUserToGroup:', err.message));
 
 const membersOfGroup = await identity.listUsersInGroup(poolId, 'demo-group').catch(() => []);
 console.log('group members:', membersOfGroup);
 
 await identity.setPassword(poolId, user.username, 'Perm-Pass-456!', true);
 
-const tokens = await identity.authenticate(poolId, process.env.APP_CLIENT_ID ?? '', user.username, 'Perm-Pass-456!').catch((err) => {
-  console.log('authenticate:', err.message);
-  return undefined;
-});
+const tokens = await identity
+  .authenticate(poolId, process.env.APP_CLIENT_ID ?? '', user.username, 'Perm-Pass-456!')
+  .catch((err) => {
+    console.log('authenticate:', err.message);
+    return undefined;
+  });
 if (tokens) console.log('access token expires in:', tokens.expiresIn);
 
 await identity.deleteUser(poolId, user.username);

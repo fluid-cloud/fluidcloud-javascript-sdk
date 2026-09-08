@@ -1,5 +1,5 @@
-import { RedisCacheBase, redisConnectionOptions } from '../shared/redis-cache.js';
 import { InvalidCredentialsError } from '../../errors.js';
+import { RedisCacheBase, redisConnectionOptions } from '../shared/redis-cache.js';
 
 /** Azure Cache for Redis. Always uses TLS. */
 export class AzureRedisCache extends RedisCacheBase {

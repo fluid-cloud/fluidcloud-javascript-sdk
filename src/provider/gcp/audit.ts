@@ -1,7 +1,6 @@
 import { Logging } from '@google-cloud/logging';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { GcpCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Audit, AuditEvent, LookupEventsOptions, TrailInfo, TrailOptions, TrailStatus } from '../types/audit.js';
 import { gcpClientConfig } from './auth.js';
 

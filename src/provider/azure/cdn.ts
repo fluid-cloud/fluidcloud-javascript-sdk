@@ -1,7 +1,6 @@
-import { CdnManagementClient, type AFDEndpoint, type AFDEndpointUpdateParameters } from '@azure/arm-cdn';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
+import { type AFDEndpoint, type AFDEndpointUpdateParameters, CdnManagementClient } from '@azure/arm-cdn';
 import type { AzureCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Cdn, CdnDistribution, CdnDistributionOptions, CdnInvalidation } from '../types/cdn.js';
 import { azureCredential } from './auth.js';
 

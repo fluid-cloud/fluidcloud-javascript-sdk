@@ -1,4 +1,4 @@
-import { createClient, type Client, type ClientOptions } from '../../src/index.js';
+import { type Client, type ClientOptions, createClient } from '../../src/index.js';
 
 /** Every environment knob the live suites read, mirroring the Go SDK Makefile. */
 export const env = {
@@ -75,10 +75,7 @@ export async function clientFor(provider: ProviderName): Promise<Client> {
     searchPassword: env.search.password,
   };
 
-  return createClient(
-    { serverUrl: env.serverUrl, apiKey: env.apiKey, entityId: env.entityIds[provider] },
-    options,
-  );
+  return createClient({ serverUrl: env.serverUrl, apiKey: env.apiKey, entityId: env.entityIds[provider] }, options);
 }
 
 /** A unique-per-run name so concurrent runs never collide on live resources. */

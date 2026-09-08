@@ -1,9 +1,8 @@
 import { createHash } from 'node:crypto';
 
 import { BackendBucketsClient, GlobalOperationsClient, type protos } from '@google-cloud/compute';
-
-import { NotFoundError, UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { GcpCredentials } from '../../credentials/index.js';
+import { NotFoundError, UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Cdn, CdnDistribution, CdnDistributionOptions, CdnInvalidation } from '../types/cdn.js';
 import { gcpClientConfig } from './auth.js';
 
@@ -59,7 +58,12 @@ export class CloudCdn implements Cdn {
     }
     const errors = current?.error?.errors;
     if (errors?.length) {
-      throw new Error(errors.map((e) => e.message).filter(Boolean).join('; '));
+      throw new Error(
+        errors
+          .map((e) => e.message)
+          .filter(Boolean)
+          .join('; '),
+      );
     }
   }
 

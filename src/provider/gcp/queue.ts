@@ -1,4 +1,4 @@
-import { PubSub, v1, type CreateSubscriptionOptions } from '@google-cloud/pubsub';
+import { type CreateSubscriptionOptions, PubSub, v1 } from '@google-cloud/pubsub';
 
 import type { GcpCredentials } from '../../credentials/index.js';
 import { wrapProviderError } from '../../errors.js';
@@ -122,8 +122,7 @@ export class PubSubQueue implements Queue {
     try {
       const [cfg] = await this.client.subscription(queueId).getMetadata();
       const retention = cfg.messageRetentionDuration;
-      const retentionSeconds =
-        typeof retention === 'object' && retention !== null ? Number(retention.seconds ?? 0) : 0;
+      const retentionSeconds = typeof retention === 'object' && retention !== null ? Number(retention.seconds ?? 0) : 0;
       return {
         approximateMessageCount: 0,
         visibilityTimeoutSeconds: cfg.ackDeadlineSeconds ?? 0,

@@ -1,4 +1,4 @@
-import { EmailClient, type EmailAddress, type EmailContent } from '@azure/communication-email';
+import { type EmailAddress, EmailClient, type EmailContent } from '@azure/communication-email';
 
 import { InvalidCredentialsError, UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Email, SendEmailOptions } from '../types/email.js';

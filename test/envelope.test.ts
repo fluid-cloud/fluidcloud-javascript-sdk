@@ -3,10 +3,10 @@ import { describe, expect, it } from 'vitest';
 
 import {
   decryptEnvelope,
+  type EphemeralKeyPair,
   encryptEnvelope,
   generateEphemeralKeyPair,
   parsePublicKeyPem,
-  type EphemeralKeyPair,
 } from '../src/credentials/envelope.js';
 
 import goEnvelope from './fixtures/go-envelope.json';
@@ -37,7 +37,10 @@ describe('envelope', () => {
   });
 
   it.each([
-    ['tampered ciphertext', (e: typeof goEnvelope) => ({ ...e, encryptedCredentials: flipLastByte(e.encryptedCredentials) })],
+    [
+      'tampered ciphertext',
+      (e: typeof goEnvelope) => ({ ...e, encryptedCredentials: flipLastByte(e.encryptedCredentials) }),
+    ],
     ['tampered nonce', (e: typeof goEnvelope) => ({ ...e, nonce: Buffer.alloc(12).toString('base64') })],
     ['truncated ciphertext', (e: typeof goEnvelope) => ({ ...e, encryptedCredentials: 'AAAA' })],
   ])('rejects %s', (_name, mutate) => {

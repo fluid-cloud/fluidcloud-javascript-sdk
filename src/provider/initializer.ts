@@ -1,5 +1,5 @@
 import {
-  CloudEntity,
+  type CloudEntity,
   Fetcher,
   PROVIDER_AWS,
   PROVIDER_AZURE,
@@ -482,7 +482,8 @@ export interface ProviderCapabilities {
 
 /** Returns the capabilities for a provider. */
 export function getCapabilities(provider: Provider | string): ProviderCapabilities {
-  const known = provider === PROVIDER_AWS || provider === PROVIDER_AZURE || provider === PROVIDER_GCP || provider === PROVIDER_OCI;
+  const known =
+    provider === PROVIDER_AWS || provider === PROVIDER_AZURE || provider === PROVIDER_GCP || provider === PROVIDER_OCI;
   return {
     provider: String(provider),
     storageGet: known,

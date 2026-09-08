@@ -1,13 +1,13 @@
 import {
   CloudWatchClient,
+  type ComparisonOperator,
   DeleteAlarmsCommand,
   DescribeAlarmsCommand,
   GetMetricStatisticsCommand,
   PutMetricAlarmCommand,
   PutMetricDataCommand,
-  type ComparisonOperator,
-  type Statistic,
   type StandardUnit,
+  type Statistic,
 } from '@aws-sdk/client-cloudwatch';
 import {
   CloudWatchLogsClient,
@@ -18,18 +18,17 @@ import {
   PutLogEventsCommand,
   ResourceAlreadyExistsException,
 } from '@aws-sdk/client-cloudwatch-logs';
-
-import { wrapProviderError } from '../../errors.js';
 import type { AwsCredentials } from '../../credentials/index.js';
+import { wrapProviderError } from '../../errors.js';
 import type {
   AlarmInfo,
   AlarmOptions,
   GetLogsOptions,
   GetMetricsOptions,
   LogEvent,
-  Monitoring,
   MetricDatapoint,
   MetricDatum,
+  Monitoring,
 } from '../types/monitoring.js';
 import { awsClientConfig } from './auth.js';
 

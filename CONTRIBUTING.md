@@ -1,17 +1,21 @@
 # Contributing
 
-This SDK mirrors [`fluidcloud-go-sdk`](https://github.com/fluid-cloud/fluidcloud-go-sdk)
-method for method. Both expose the same 13 services and the same 172 methods, and
-`bun run coverage` prints a matrix that must stay identical between the two.
+This SDK is a TypeScript port of FluidCloud's Go SDK. Both expose the same 13
+services and the same 172 methods, and `bun run coverage` prints the matrix of
+what each provider supports.
 
-**Parity is the rule.** Where a cloud provider cannot do something, both SDKs
-throw the same typed error naming the same gap. Do not "improve" one SDK past the
-other — fix the Go SDK first, then mirror the change here.
+**Behavioral parity matters.** Where a cloud provider cannot do something, the
+SDK throws a typed error naming the gap rather than pretending. If a change
+would alter behavior rather than fix a bug — a different return shape, a
+different error, a capability that starts working — say so in the PR. Keeping
+the SDKs in step is the maintainers' job, not yours; you only need to flag it.
 
 ## Getting set up
 
 ```bash
 bun install
+bun run lint          # biome — lint and formatting
+bun run lint:fix      # apply the safe fixes
 bun run typecheck     # tsc --noEmit
 bun run test          # vitest — fully mocked, no network, no credentials
 bun run build         # tsup → dist/ (ESM + CJS + .d.ts)
@@ -74,6 +78,16 @@ make e2e API_KEY=fc_xxx ENTITY_ID_AWS=entity-123 TEST_BUCKET=my-bucket
 
 They skip, with a reason, for any provider whose credentials are absent, and
 write `TEST_RESULTS.md` summarising what passed per provider.
+
+## Versioning
+
+Semantic versioning, with the policy and the running list of changes in
+[`CHANGELOG.md`](./CHANGELOG.md). Add an entry under **Unreleased** in the same
+PR as the change — it is much harder to reconstruct later.
+
+Releases are cut from GitHub: bump `version` in `package.json`, merge, then
+publish a Release whose tag matches it. The release workflow refuses to publish
+when the tag and `package.json` disagree.
 
 ## Pull requests
 

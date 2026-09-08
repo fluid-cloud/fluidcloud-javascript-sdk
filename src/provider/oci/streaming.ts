@@ -1,4 +1,4 @@
-import * as common from 'oci-common';
+import type * as common from 'oci-common';
 import { models, StreamAdminClient, StreamClient } from 'oci-streaming';
 
 import type { OciCredentials } from '../../credentials/index.js';
@@ -7,8 +7,8 @@ import type {
   GetRecordsOptions,
   StreamCreateOptions,
   StreamInfo,
-  StreamRecord,
   Streaming,
+  StreamRecord,
 } from '../types/streaming.js';
 import { ociAuthProvider } from './auth.js';
 
