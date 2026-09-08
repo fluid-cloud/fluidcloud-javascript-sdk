@@ -14,6 +14,95 @@ bun add @fluid-cloud/fluidcloud-javascript-sdk    # or npm install
 
 Node 18 or newer. TypeScript types are bundled; ESM and CJS both work.
 
+### Install only the clouds you use
+
+The cloud SDKs are **optional peer dependencies**, and provider code is loaded on
+demand, so installing this package pulls in none of them. Add the set for each
+cloud you actually talk to. An AWS-only install is about 61 MB; installing all
+four would be about 650 MB.
+
+**AWS** (17 packages)
+
+```bash
+bun add @aws-sdk/client-cloudfront \
+  @aws-sdk/client-cloudtrail \
+  @aws-sdk/client-cloudwatch \
+  @aws-sdk/client-cloudwatch-logs \
+  @aws-sdk/client-cognito-identity-provider \
+  @aws-sdk/client-kinesis \
+  @aws-sdk/client-s3 \
+  @aws-sdk/client-secrets-manager \
+  @aws-sdk/client-sesv2 \
+  @aws-sdk/client-sns \
+  @aws-sdk/client-sqs \
+  @aws-sdk/client-ssm \
+  @aws-sdk/credential-providers \
+  @aws-sdk/s3-request-presigner \
+  @opensearch-project/opensearch \
+  ioredis \
+  kafkajs
+```
+
+**Azure** (16 packages)
+
+```bash
+bun add @azure/app-configuration \
+  @azure/arm-cdn \
+  @azure/arm-eventhub \
+  @azure/arm-monitor \
+  @azure/arm-operationalinsights \
+  @azure/communication-email \
+  @azure/event-hubs \
+  @azure/identity \
+  @azure/keyvault-secrets \
+  @azure/monitor-ingestion \
+  @azure/monitor-query \
+  @azure/search-documents \
+  @azure/service-bus \
+  @azure/storage-blob \
+  @microsoft/microsoft-graph-client \
+  ioredis
+```
+
+**GCP** (8 packages)
+
+```bash
+bun add @google-cloud/compute \
+  @google-cloud/logging \
+  @google-cloud/parametermanager \
+  @google-cloud/pubsub \
+  @google-cloud/secret-manager \
+  @google-cloud/storage \
+  firebase-admin \
+  ioredis
+```
+
+**OCI** (17 packages)
+
+```bash
+bun add @opensearch-project/opensearch \
+  ioredis \
+  oci-audit \
+  oci-common \
+  oci-email \
+  oci-emaildataplane \
+  oci-identitydomains \
+  oci-logging \
+  oci-loggingingestion \
+  oci-loggingsearch \
+  oci-monitoring \
+  oci-objectstorage \
+  oci-ons \
+  oci-queue \
+  oci-secrets \
+  oci-streaming \
+  oci-vault
+```
+
+Reach for a cloud whose packages are missing and Node raises a module-not-found
+error naming exactly what to install. `ioredis` appears in every list because all
+four providers back the cache with Redis.
+
 ---
 
 ## Quick start

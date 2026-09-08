@@ -1,7 +1,7 @@
 import { Client } from '@opensearch-project/opensearch';
 
 import { InvalidCredentialsError } from '../../errors.js';
-import { OpenSearchBase } from '../aws/search.js';
+import { OpenSearchBase } from '../shared/opensearch.js';
 import type { Search } from '../types/search.js';
 
 /** OCI Search with OpenSearch-backed Search, authenticated with HTTP basic auth. */

@@ -1,4 +1,4 @@
-import { RedisCacheBase, redisConnectionOptions } from '../aws/cache.js';
+import { RedisCacheBase, redisConnectionOptions } from '../shared/redis-cache.js';
 import { InvalidCredentialsError } from '../../errors.js';
 
 /** GCP Memorystore for Redis. */
