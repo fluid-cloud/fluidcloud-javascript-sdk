@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { UnsupportedError } from '../src/errors.js';
 import type { AwsCredentials, AzureCredentials, GcpCredentials, OciCredentials } from '../src/credentials/index.js';
+import { UnsupportedError } from '../src/errors.js';
 
 const kinesisSend = vi.fn();
 vi.mock('@aws-sdk/client-kinesis', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@aws-sdk/client-kinesis')>();
-  return { ...actual, KinesisClient: vi.fn().mockImplementation(function () { return { send: kinesisSend }; }) };
+  return {
+    ...actual,
+    KinesisClient: vi.fn().mockImplementation(function () {
+      return { send: kinesisSend };
+    }),
+  };
 });
 
 const kafkaAdmin = {
@@ -38,23 +42,31 @@ const ehClient = {
   consumerGroups: { createOrUpdate: vi.fn(), delete: vi.fn() },
 };
 vi.mock('@azure/arm-eventhub', () => ({
-  EventHubManagementClient: vi.fn().mockImplementation(function () { return ehClient; }),
+  EventHubManagementClient: vi.fn().mockImplementation(function () {
+    return ehClient;
+  }),
 }));
 
 const ehProducer = { createBatch: vi.fn(), sendBatch: vi.fn(), close: vi.fn() };
 const ehSubscription = { close: vi.fn() };
 const ehConsumer = { subscribe: vi.fn(), close: vi.fn() };
 vi.mock('@azure/event-hubs', () => ({
-  EventHubProducerClient: vi.fn().mockImplementation(function () { return ehProducer; }),
+  EventHubProducerClient: vi.fn().mockImplementation(function () {
+    return ehProducer;
+  }),
   EventHubConsumerClient: Object.assign(
-    vi.fn().mockImplementation(function () { return ehConsumer; }),
+    vi.fn().mockImplementation(function () {
+      return ehConsumer;
+    }),
     { defaultConsumerGroupName: '$Default' },
   ),
   earliestEventPosition: { isInclusive: true },
 }));
 
 vi.mock('@azure/identity', () => ({
-  ClientSecretCredential: vi.fn().mockImplementation(function () { return {}; }),
+  ClientSecretCredential: vi.fn().mockImplementation(function () {
+    return {};
+  }),
 }));
 
 const pubsubTopic = { delete: vi.fn(), publishMessage: vi.fn(), exists: vi.fn() };
@@ -71,8 +83,14 @@ const subscriberClient = {
   subscriptionPath: (project: string, sub: string) => `projects/${project}/subscriptions/${sub}`,
 };
 vi.mock('@google-cloud/pubsub', () => ({
-  PubSub: vi.fn().mockImplementation(function () { return pubsub; }),
-  v1: { SubscriberClient: vi.fn().mockImplementation(function () { return subscriberClient; }) },
+  PubSub: vi.fn().mockImplementation(function () {
+    return pubsub;
+  }),
+  v1: {
+    SubscriberClient: vi.fn().mockImplementation(function () {
+      return subscriberClient;
+    }),
+  },
 }));
 
 const ociAdmin = {
@@ -92,8 +110,12 @@ const ociData = {
   endpoint: '',
 };
 vi.mock('oci-streaming', () => ({
-  StreamAdminClient: vi.fn().mockImplementation(function () { return ociAdmin; }),
-  StreamClient: vi.fn().mockImplementation(function () { return ociData; }),
+  StreamAdminClient: vi.fn().mockImplementation(function () {
+    return ociAdmin;
+  }),
+  StreamClient: vi.fn().mockImplementation(function () {
+    return ociData;
+  }),
   models: {
     CreateCursorDetails: { Type: { TrimHorizon: 'TRIM_HORIZON', AfterOffset: 'AFTER_OFFSET' } },
     CreateGroupCursorDetails: { Type: { TrimHorizon: 'TRIM_HORIZON' } },
@@ -149,7 +171,9 @@ describe('KinesisStreaming (aws)', () => {
     expect(kinesisSend.mock.calls[1][0].input.StreamName).toBe('s1');
 
     const records = await s.getRecords('s1', { partition: 0, consumerGroup: 'g1' });
-    expect(records).toEqual([{ key: Buffer.from('pk-1'), value: Buffer.from('hi'), partition: 0, timestamp: undefined }]);
+    expect(records).toEqual([
+      { key: Buffer.from('pk-1'), value: Buffer.from('hi'), partition: 0, timestamp: undefined },
+    ]);
     expect(kinesisSend.mock.calls[3][0].input).toMatchObject({ ShardIteratorType: 'TRIM_HORIZON' });
 
     await s.commitOffset('s1', 'g1', 0, 0);
@@ -229,7 +253,9 @@ describe('EventHubsStreaming (azure)', () => {
     });
     const s = new EventHubsStreaming(azureCreds, 'rg1', 'ns1');
     const records = await s.getRecords('eh1', { partition: 0, limit: 5 });
-    expect(records).toEqual([{ key: Buffer.from('k1'), value: Buffer.from('hi'), partition: 0, offset: 42, timestamp: new Date(0) }]);
+    expect(records).toEqual([
+      { key: Buffer.from('k1'), value: Buffer.from('hi'), partition: 0, offset: 42, timestamp: new Date(0) },
+    ]);
     expect(ehSubscription.close).toHaveBeenCalled();
     expect(ehConsumer.close).toHaveBeenCalled();
   });
@@ -253,9 +279,7 @@ describe('PubSubStreaming (gcp)', () => {
   it('getRecords pulls and acknowledges via the low-level SubscriberClient', async () => {
     subscriberClient.pull.mockResolvedValueOnce([
       {
-        receivedMessages: [
-          { ackId: 'ack-1', message: { data: Buffer.from('hi'), attributes: { key: 'k1' } } },
-        ],
+        receivedMessages: [{ ackId: 'ack-1', message: { data: Buffer.from('hi'), attributes: { key: 'k1' } } }],
       },
     ]);
     const s = new PubSubStreaming(gcpCreds);
@@ -299,12 +323,21 @@ describe('OciStreaming (oci)', () => {
     ociAdmin.getStream.mockResolvedValue({ stream: { messagesEndpoint: 'https://stream-endpoint' } });
     ociData.createCursor.mockResolvedValueOnce({ cursor: { value: 'cursor-1' } });
     ociData.getMessages.mockResolvedValueOnce({
-      items: [{ key: Buffer.from('k1').toString('base64'), value: Buffer.from('hi').toString('base64'), partition: '0', offset: 7 }],
+      items: [
+        {
+          key: Buffer.from('k1').toString('base64'),
+          value: Buffer.from('hi').toString('base64'),
+          partition: '0',
+          offset: 7,
+        },
+      ],
     });
 
     const s = new OciStreaming(ociCreds, 'ocid1.compartment.oc1..a');
     const records = await s.getRecords('stream1', { partition: 0, limit: 5 });
-    expect(records).toEqual([{ key: Buffer.from('k1'), value: Buffer.from('hi'), partition: 0, offset: 7, timestamp: undefined }]);
+    expect(records).toEqual([
+      { key: Buffer.from('k1'), value: Buffer.from('hi'), partition: 0, offset: 7, timestamp: undefined },
+    ]);
     expect(ociData.createCursor).toHaveBeenCalledWith({
       streamId: 'stream1',
       createCursorDetails: { partition: '0', type: 'TRIM_HORIZON' },

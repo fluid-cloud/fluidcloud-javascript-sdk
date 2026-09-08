@@ -34,10 +34,16 @@ const exists = await secrets.exists('example/db-password');
 console.log('exists:', exists);
 
 const all = await secrets.list();
-console.log('list:', all.map((s) => s.name));
+console.log(
+  'list:',
+  all.map((s) => s.name),
+);
 
 const versions = await secrets.listVersions('example/db-password');
-console.log('listVersions:', versions.map((v) => `${v.version}:${v.status}`));
+console.log(
+  'listVersions:',
+  versions.map((v) => `${v.version}:${v.status}`),
+);
 
 await secrets.putBinary('example/api-key.bin', Buffer.from([1, 2, 3, 4]));
 const binary = await secrets.getBinary('example/api-key.bin');

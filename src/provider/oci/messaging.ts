@@ -1,5 +1,5 @@
 import * as common from 'oci-common';
-import { NotificationControlPlaneClient, NotificationDataPlaneClient, type models } from 'oci-ons';
+import { type models, NotificationControlPlaneClient, NotificationDataPlaneClient } from 'oci-ons';
 
 import type { OciCredentials } from '../../credentials/index.js';
 import { NotFoundError, wrapProviderError } from '../../errors.js';

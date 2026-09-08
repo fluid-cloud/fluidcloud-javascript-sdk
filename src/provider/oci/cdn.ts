@@ -10,8 +10,6 @@ function unsupported(op: string): UnsupportedError {
 
 /** OCI has no native CDN service; every operation throws UnsupportedError. */
 export class OciCdn implements Cdn {
-  constructor() {}
-
   async createDistribution(_opts: CdnDistributionOptions): Promise<CdnDistribution> {
     throw unsupported('createDistribution');
   }

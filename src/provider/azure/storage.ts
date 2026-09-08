@@ -2,12 +2,12 @@ import type { Readable } from 'node:stream';
 
 import {
   BlobSASPermissions,
+  type BlobSASSignatureValues,
   BlobServiceClient,
   generateBlobSASQueryParameters,
   SASProtocol,
-  StorageSharedKeyCredential,
-  type BlobSASSignatureValues,
   type SASQueryParameters,
+  StorageSharedKeyCredential,
 } from '@azure/storage-blob';
 
 import type { AzureCredentials } from '../../credentials/index.js';
@@ -21,8 +21,8 @@ import type {
   StorageDeleteError,
   StorageListOptions,
   StorageObject,
-  StoragePutOptions,
   StorageOperation,
+  StoragePutOptions,
   UploadOptions,
 } from '../types/storage.js';
 import { azureCredential } from './auth.js';
@@ -71,7 +71,12 @@ export class BlobStorage implements Storage {
     }
   }
 
-  async put(container: string, blobName: string, data: Buffer | Uint8Array | string, _opts?: StoragePutOptions): Promise<void> {
+  async put(
+    container: string,
+    blobName: string,
+    data: Buffer | Uint8Array | string,
+    _opts?: StoragePutOptions,
+  ): Promise<void> {
     try {
       const buffer = typeof data === 'string' ? Buffer.from(data) : Buffer.from(data);
       await this.client.getContainerClient(container).getBlockBlobClient(blobName).uploadData(buffer);
@@ -80,7 +85,13 @@ export class BlobStorage implements Storage {
     }
   }
 
-  async putStream(container: string, blobName: string, reader: Readable, _size: number, opts?: StoragePutOptions): Promise<void> {
+  async putStream(
+    container: string,
+    blobName: string,
+    reader: Readable,
+    _size: number,
+    opts?: StoragePutOptions,
+  ): Promise<void> {
     const data = await readAll(reader);
     await this.put(container, blobName, data, opts);
   }
@@ -191,7 +202,13 @@ export class BlobStorage implements Storage {
     return process.hrtime.bigint().toString();
   }
 
-  async multipartUploadPart(container: string, blobName: string, uploadId: string, partNumber: number, data: Buffer | Uint8Array): Promise<string> {
+  async multipartUploadPart(
+    container: string,
+    blobName: string,
+    uploadId: string,
+    partNumber: number,
+    data: Buffer | Uint8Array,
+  ): Promise<string> {
     try {
       const blockId = Buffer.from(`${uploadId}-${String(partNumber).padStart(6, '0')}`).toString('base64');
       const blockBlobClient = this.client.getContainerClient(container).getBlockBlobClient(blobName);
@@ -202,7 +219,12 @@ export class BlobStorage implements Storage {
     }
   }
 
-  async multipartComplete(container: string, blobName: string, _uploadId: string, parts: MultipartPart[]): Promise<void> {
+  async multipartComplete(
+    container: string,
+    blobName: string,
+    _uploadId: string,
+    parts: MultipartPart[],
+  ): Promise<void> {
     try {
       const blockBlobClient = this.client.getContainerClient(container).getBlockBlobClient(blobName);
       await blockBlobClient.commitBlockList(parts.map((p) => p.etag));
@@ -214,8 +236,15 @@ export class BlobStorage implements Storage {
   /** No-op: Azure has no abort; uncommitted blocks expire automatically. */
   async multipartAbort(_container: string, _blobName: string, _uploadId: string): Promise<void> {}
 
-  async upload(container: string, blobName: string, reader: Readable, size: number, opts?: UploadOptions): Promise<void> {
-    const threshold = opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
+  async upload(
+    container: string,
+    blobName: string,
+    reader: Readable,
+    size: number,
+    opts?: UploadOptions,
+  ): Promise<void> {
+    const threshold =
+      opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
 
     if (size > 0 && size < threshold) {
       const data = await readAll(reader);
@@ -249,9 +278,21 @@ export class BlobStorage implements Storage {
     }
   }
 
-  async presignGet(container: string, blobName: string, expiresInSeconds: number, opts?: PresignGetOptions): Promise<string> {
+  async presignGet(
+    container: string,
+    blobName: string,
+    expiresInSeconds: number,
+    opts?: PresignGetOptions,
+  ): Promise<string> {
     const disposition = opts?.filename ? `attachment; filename="${opts.filename}"` : undefined;
-    return this.signSAS('PresignGet', container, blobName, expiresInSeconds, BlobSASPermissions.parse('r'), disposition);
+    return this.signSAS(
+      'PresignGet',
+      container,
+      blobName,
+      expiresInSeconds,
+      BlobSASPermissions.parse('r'),
+      disposition,
+    );
   }
 
   async presignPut(container: string, blobName: string, expiresInSeconds: number): Promise<string> {

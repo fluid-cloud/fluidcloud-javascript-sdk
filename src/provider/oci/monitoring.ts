@@ -1,19 +1,18 @@
-import * as monitoring from 'oci-monitoring';
 import * as logging from 'oci-logging';
 import * as loggingingestion from 'oci-loggingingestion';
 import * as loggingsearch from 'oci-loggingsearch';
-
-import { NotFoundError, wrapProviderError } from '../../errors.js';
+import * as monitoring from 'oci-monitoring';
 import type { OciCredentials } from '../../credentials/index.js';
+import { NotFoundError, wrapProviderError } from '../../errors.js';
 import type {
   AlarmInfo,
   AlarmOptions,
   GetLogsOptions,
   GetMetricsOptions,
   LogEvent,
-  Monitoring as MonitoringType,
   MetricDatapoint,
   MetricDatum,
+  Monitoring as MonitoringType,
 } from '../types/monitoring.js';
 import { ociAuthProvider } from './auth.js';
 

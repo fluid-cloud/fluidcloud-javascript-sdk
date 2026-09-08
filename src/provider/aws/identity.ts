@@ -8,6 +8,8 @@ import {
   AdminRemoveUserFromGroupCommand,
   AdminSetUserPasswordCommand,
   AdminUpdateUserAttributesCommand,
+  type AttributeType,
+  type AuthenticationResultType,
   AuthFlowType,
   CognitoIdentityProviderClient,
   ConfirmSignUpCommand,
@@ -23,8 +25,6 @@ import {
   ListUsersInGroupCommand,
   SignUpCommand,
   VerifiedAttributeType,
-  type AttributeType,
-  type AuthenticationResultType,
 } from '@aws-sdk/client-cognito-identity-provider';
 
 import type { AwsCredentials } from '../../credentials/index.js';
@@ -47,7 +47,12 @@ function buildAttributes(email: string | undefined, attributes: Record<string, s
   return attrs;
 }
 
-function userFromCognito(username: string, enabled: boolean | undefined, status: string, attributes: AttributeType[] | undefined): User {
+function userFromCognito(
+  username: string,
+  enabled: boolean | undefined,
+  status: string,
+  attributes: AttributeType[] | undefined,
+): User {
   const attrs: Record<string, string> = {};
   let email = '';
   for (const a of attributes ?? []) {
@@ -106,9 +111,7 @@ export class CognitoIdentity implements Identity {
     let nextToken: string | undefined;
     try {
       do {
-        const out = await this.client.send(
-          new ListUserPoolsCommand({ MaxResults: 60, NextToken: nextToken }),
-        );
+        const out = await this.client.send(new ListUserPoolsCommand({ MaxResults: 60, NextToken: nextToken }));
         for (const p of out.UserPools ?? []) pools.push({ id: p.Id ?? '', name: p.Name ?? '' });
         nextToken = out.NextToken;
       } while (nextToken);
@@ -141,7 +144,12 @@ export class CognitoIdentity implements Identity {
         }),
       );
       if (!out.User) throw new NotFoundError('aws: createUser: user not found');
-      return userFromCognito(out.User.Username ?? '', out.User.Enabled, String(out.User.UserStatus ?? ''), out.User.Attributes);
+      return userFromCognito(
+        out.User.Username ?? '',
+        out.User.Enabled,
+        String(out.User.UserStatus ?? ''),
+        out.User.Attributes,
+      );
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
       return wrapProviderError('aws', 'createUser', err);
@@ -217,7 +225,12 @@ export class CognitoIdentity implements Identity {
   async setPassword(poolId: string, username: string, password: string, permanent: boolean): Promise<void> {
     try {
       await this.client.send(
-        new AdminSetUserPasswordCommand({ UserPoolId: poolId, Username: username, Password: password, Permanent: permanent }),
+        new AdminSetUserPasswordCommand({
+          UserPoolId: poolId,
+          Username: username,
+          Password: password,
+          Permanent: permanent,
+        }),
       );
     } catch (err) {
       wrapProviderError('aws', 'setPassword', err);
@@ -257,7 +270,9 @@ export class CognitoIdentity implements Identity {
 
   async addUserToGroup(poolId: string, username: string, group: string): Promise<void> {
     try {
-      await this.client.send(new AdminAddUserToGroupCommand({ UserPoolId: poolId, Username: username, GroupName: group }));
+      await this.client.send(
+        new AdminAddUserToGroupCommand({ UserPoolId: poolId, Username: username, GroupName: group }),
+      );
     } catch (err) {
       wrapProviderError('aws', 'addUserToGroup', err);
     }
@@ -265,7 +280,9 @@ export class CognitoIdentity implements Identity {
 
   async removeUserFromGroup(poolId: string, username: string, group: string): Promise<void> {
     try {
-      await this.client.send(new AdminRemoveUserFromGroupCommand({ UserPoolId: poolId, Username: username, GroupName: group }));
+      await this.client.send(
+        new AdminRemoveUserFromGroupCommand({ UserPoolId: poolId, Username: username, GroupName: group }),
+      );
     } catch (err) {
       wrapProviderError('aws', 'removeUserFromGroup', err);
     }
@@ -290,7 +307,13 @@ export class CognitoIdentity implements Identity {
     }
   }
 
-  async signUp(poolId: string, clientId: string, username: string, password: string, attributes?: Record<string, string>): Promise<void> {
+  async signUp(
+    poolId: string,
+    clientId: string,
+    username: string,
+    password: string,
+    attributes?: Record<string, string>,
+  ): Promise<void> {
     try {
       const attrs = buildAttributes(undefined, attributes);
       await this.client.send(
@@ -308,7 +331,9 @@ export class CognitoIdentity implements Identity {
 
   async confirmSignUp(poolId: string, clientId: string, username: string, code: string): Promise<void> {
     try {
-      await this.client.send(new ConfirmSignUpCommand({ ClientId: clientId, Username: username, ConfirmationCode: code }));
+      await this.client.send(
+        new ConfirmSignUpCommand({ ClientId: clientId, Username: username, ConfirmationCode: code }),
+      );
     } catch (err) {
       wrapProviderError('aws', 'confirmSignUp', err);
     }

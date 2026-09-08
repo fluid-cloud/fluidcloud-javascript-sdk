@@ -1,5 +1,5 @@
 import Redis, { type RedisOptions } from 'ioredis';
-import { InvalidCredentialsError, NotFoundError, wrapProviderError } from '../../errors.js';
+import { NotFoundError, wrapProviderError } from '../../errors.js';
 import type { Cache } from '../types/cache.js';
 
 /** Builds ioredis connection options from a "host:port" endpoint. */

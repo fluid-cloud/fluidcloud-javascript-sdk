@@ -18,11 +18,20 @@ vi.mock('@aws-sdk/client-sesv2', () => {
   class CreateEmailIdentityCommand extends Command {}
   class ListEmailIdentitiesCommand extends Command {}
   class DeleteEmailIdentityCommand extends Command {}
-  return { SESv2Client, SendEmailCommand, CreateEmailIdentityCommand, ListEmailIdentitiesCommand, DeleteEmailIdentityCommand };
+  return {
+    SESv2Client,
+    SendEmailCommand,
+    CreateEmailIdentityCommand,
+    ListEmailIdentitiesCommand,
+    DeleteEmailIdentityCommand,
+  };
 });
 
 const acsBeginSendMock = vi.fn();
-const AcsEmailClientCtor = vi.fn(function (this: { connectionString: string; beginSend: typeof acsBeginSendMock }, connectionString: string) {
+const AcsEmailClientCtor = vi.fn(function (
+  this: { connectionString: string; beginSend: typeof acsBeginSendMock },
+  connectionString: string,
+) {
   this.connectionString = connectionString;
   this.beginSend = acsBeginSendMock;
 });
@@ -72,7 +81,13 @@ describe('SesEmail (aws)', () => {
   it('sendEmail maps to a Simple SendEmailCommand', async () => {
     sesSendMock.mockResolvedValueOnce({ MessageId: 'mid-1' });
     const svc = new SesEmail(awsCreds);
-    const id = await svc.sendEmail({ ...baseOpts, cc: ['c@x.com'], body: 'text', htmlBody: '<p>hi</p>', replyTo: ['r@x.com'] });
+    const id = await svc.sendEmail({
+      ...baseOpts,
+      cc: ['c@x.com'],
+      body: 'text',
+      htmlBody: '<p>hi</p>',
+      replyTo: ['r@x.com'],
+    });
     expect(id).toBe('mid-1');
     const input = sesSendMock.mock.calls[0][0].input as Record<string, any>;
     expect(input.FromEmailAddress).toBe('a@x.com');

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-
-import { UnsupportedError } from '../src/errors.js';
 import type { AwsCredentials, AzureCredentials, GcpCredentials, OciCredentials } from '../src/credentials/index.js';
+import { UnsupportedError } from '../src/errors.js';
 
 const awsSend = vi.hoisted(() => vi.fn());
 const azureList = vi.hoisted(() => vi.fn());
@@ -117,7 +116,9 @@ describe('CloudTrailAudit (aws)', () => {
     const deleteInput = (awsSend.mock.calls[1][0] as { input: Record<string, unknown> }).input;
     expect(deleteInput).toMatchObject({ Name: 'my-trail' });
 
-    awsSend.mockResolvedValueOnce({ trailList: [{ Name: 'my-trail', S3BucketName: 'bucket', IsMultiRegionTrail: true }] });
+    awsSend.mockResolvedValueOnce({
+      trailList: [{ Name: 'my-trail', S3BucketName: 'bucket', IsMultiRegionTrail: true }],
+    });
     const trails = await audit.listTrails();
     expect(trails).toEqual([{ name: 'my-trail', s3BucketName: 'bucket', isMultiRegion: true }]);
 
@@ -165,7 +166,9 @@ describe('ActivityLogAudit (azure)', () => {
         raw: events[0].raw,
       },
     ]);
-    expect(azureList).toHaveBeenCalledWith("eventTimestamp ge '2026-01-01T00:00:00Z' and eventTimestamp le '2026-01-02T00:00:00Z'");
+    expect(azureList).toHaveBeenCalledWith(
+      "eventTimestamp ge '2026-01-01T00:00:00Z' and eventTimestamp le '2026-01-02T00:00:00Z'",
+    );
   });
 
   it('defaults the filter to an open time window when none is given', async () => {
@@ -251,7 +254,12 @@ describe('OciAudit (oci)', () => {
     const events = await audit.lookupEvents();
 
     expect(events).toHaveLength(2);
-    expect(events[0]).toMatchObject({ id: 'evt-1', name: 'GetInstance', resourceId: 'ocid1.instance.1', username: 'carol' });
+    expect(events[0]).toMatchObject({
+      id: 'evt-1',
+      name: 'GetInstance',
+      resourceId: 'ocid1.instance.1',
+      username: 'carol',
+    });
     expect(ociListEvents).toHaveBeenCalledTimes(2);
 
     const firstRequest = ociListEvents.mock.calls[0][0] as { compartmentId: string; startTime: Date; endTime: Date };

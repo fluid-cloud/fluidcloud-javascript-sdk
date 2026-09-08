@@ -1,13 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { UnsupportedError } from '../src/errors.js';
 import type { AwsCredentials, AzureCredentials, GcpCredentials, OciCredentials } from '../src/credentials/index.js';
+import { UnsupportedError } from '../src/errors.js';
 import type { StorageOperation } from '../src/provider/types/storage.js';
 
 const awsSend = vi.fn();
 vi.mock('@aws-sdk/client-s3', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@aws-sdk/client-s3')>();
-  return { ...actual, S3Client: vi.fn().mockImplementation(function () { return { send: awsSend }; }) };
+  return {
+    ...actual,
+    S3Client: vi.fn().mockImplementation(function () {
+      return { send: awsSend };
+    }),
+  };
 });
 const awsGetSignedUrl = vi.fn().mockResolvedValue('https://signed.example/aws');
 vi.mock('@aws-sdk/s3-request-presigner', () => ({ getSignedUrl: awsGetSignedUrl }));
@@ -43,8 +47,12 @@ vi.mock('@azure/storage-blob', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@azure/storage-blob')>();
   return {
     ...actual,
-    BlobServiceClient: vi.fn().mockImplementation(function () { return azureServiceClient; }),
-    StorageSharedKeyCredential: vi.fn().mockImplementation(function (account: string, key: string) { return { account, key }; }),
+    BlobServiceClient: vi.fn().mockImplementation(function () {
+      return azureServiceClient;
+    }),
+    StorageSharedKeyCredential: vi.fn().mockImplementation(function (account: string, key: string) {
+      return { account, key };
+    }),
     generateBlobSASQueryParameters: vi.fn().mockReturnValue({ toString: () => 'sig=abc' }),
   };
 });
@@ -73,7 +81,11 @@ const gcpClient = {
   createBucket: vi.fn(),
   getBuckets: vi.fn(),
 };
-vi.mock('@google-cloud/storage', () => ({ Storage: vi.fn().mockImplementation(function () { return gcpClient; }) }));
+vi.mock('@google-cloud/storage', () => ({
+  Storage: vi.fn().mockImplementation(function () {
+    return gcpClient;
+  }),
+}));
 
 const ociClient: Record<string, ReturnType<typeof vi.fn>> & { regionId?: string; endpoint?: string } = {
   getObject: vi.fn(),
@@ -96,11 +108,21 @@ const ociClient: Record<string, ReturnType<typeof vi.fn>> & { regionId?: string;
 };
 vi.mock('oci-objectstorage', async (importOriginal) => {
   const actual = await importOriginal<typeof import('oci-objectstorage')>();
-  return { ...actual, ObjectStorageClient: vi.fn().mockImplementation(function () { return ociClient; }) };
+  return {
+    ...actual,
+    ObjectStorageClient: vi.fn().mockImplementation(function () {
+      return ociClient;
+    }),
+  };
 });
 vi.mock('oci-common', async (importOriginal) => {
   const actual = await importOriginal<typeof import('oci-common')>();
-  return { ...actual, SimpleAuthenticationDetailsProvider: vi.fn().mockImplementation(function () { return {}; }) };
+  return {
+    ...actual,
+    SimpleAuthenticationDetailsProvider: vi.fn().mockImplementation(function () {
+      return {};
+    }),
+  };
 });
 
 const { S3Storage } = await import('../src/provider/aws/storage.js');
@@ -160,7 +182,12 @@ describe('S3Storage (AWS)', () => {
     expect(awsSend).toHaveBeenCalledTimes(1);
     const command = awsSend.mock.calls[0][0];
     expect(command).toBeInstanceOf(s3.PutObjectCommand);
-    expect(command.input).toMatchObject({ Bucket: 'bucket', Key: 'key.txt', ContentType: 'text/plain', Metadata: { a: 'b' } });
+    expect(command.input).toMatchObject({
+      Bucket: 'bucket',
+      Key: 'key.txt',
+      ContentType: 'text/plain',
+      Metadata: { a: 'b' },
+    });
   });
 
   it('list() sends a ListObjectsV2Command with prefix and maxKeys', async () => {
@@ -312,7 +339,12 @@ describe('BlobStorage (Azure)', () => {
 
   it('list() reads blob items off every page', async () => {
     azureContainerClient.listBlobsFlat.mockReturnValueOnce(
-      makeBlobsFlatResult([{ name: 'a', properties: { contentLength: 3, etag: 'e', contentType: 'text/plain', lastModified: new Date(0) } }]),
+      makeBlobsFlatResult([
+        {
+          name: 'a',
+          properties: { contentLength: 3, etag: 'e', contentType: 'text/plain', lastModified: new Date(0) },
+        },
+      ]),
     );
     const objects = await storage.list('container');
     expect(objects).toEqual([{ key: 'a', size: 3, lastModified: new Date(0), etag: 'e', contentType: 'text/plain' }]);
@@ -400,7 +432,12 @@ describe('ObjectStorage (OCI)', () => {
     await storage.put('bucket', 'key', Buffer.from('hi'));
 
     expect(ociClient.putObject).toHaveBeenCalledWith(
-      expect.objectContaining({ namespaceName: 'ns', bucketName: 'bucket', objectName: 'key', contentType: 'application/octet-stream' }),
+      expect.objectContaining({
+        namespaceName: 'ns',
+        bucketName: 'bucket',
+        objectName: 'key',
+        contentType: 'application/octet-stream',
+      }),
     );
   });
 
@@ -426,7 +463,7 @@ describe('ObjectStorage (OCI)', () => {
   });
 
   it('getTags()/setTags() emulate tags with a tag_ metadata prefix', async () => {
-    ociClient.headObject.mockResolvedValueOnce({ opcMeta: { 'tag_env': 'prod', other: 'x' } });
+    ociClient.headObject.mockResolvedValueOnce({ opcMeta: { tag_env: 'prod', other: 'x' } });
     expect(await storage.getTags('bucket', 'key')).toEqual({ env: 'prod' });
 
     ociClient.headObject.mockResolvedValueOnce({ opcMeta: { other: 'x' } });
@@ -434,7 +471,10 @@ describe('ObjectStorage (OCI)', () => {
     await storage.setTags('bucket', 'key', { team: 'infra' });
 
     const call = ociClient.copyObject.mock.calls[0][0];
-    expect(call.copyObjectDetails.destinationObjectMetadata).toEqual({ 'opc-meta-other': 'x', 'opc-meta-tag_team': 'infra' });
+    expect(call.copyObjectDetails.destinationObjectMetadata).toEqual({
+      'opc-meta-other': 'x',
+      'opc-meta-tag_team': 'infra',
+    });
   });
 
   it('exists() returns false when headObject rejects', async () => {

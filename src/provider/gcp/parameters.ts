@@ -1,4 +1,4 @@
-import { ParameterManagerClient, protos } from '@google-cloud/parametermanager';
+import { ParameterManagerClient, type protos } from '@google-cloud/parametermanager';
 import type { ClientOptions } from 'google-gax';
 
 import type { GcpCredentials } from '../../credentials/index.js';

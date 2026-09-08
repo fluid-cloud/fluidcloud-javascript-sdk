@@ -1,16 +1,16 @@
 import {
   constants,
-  createDecipheriv,
   createCipheriv,
+  createDecipheriv,
   createPublicKey,
   generateKeyPairSync,
+  type KeyObject,
   privateDecrypt,
   publicEncrypt,
   randomBytes,
-  type KeyObject,
 } from 'node:crypto';
 
-import { FluidCloudError, ErrorCode, messageOf } from '../errors.js';
+import { ErrorCode, FluidCloudError, messageOf } from '../errors.js';
 
 /**
  * Envelope encryption for secure credential transfer over HTTPS.
@@ -95,7 +95,9 @@ export function decryptEnvelope(kp: EphemeralKeyPair, resp: EnvelopeResponse): R
   }
 
   if (dek.length !== AES_KEY_BYTES) {
-    throw envelopeError(`invalid data encryption key size: expected ${AES_KEY_BYTES}-byte DEK, got ${dek.length} bytes`);
+    throw envelopeError(
+      `invalid data encryption key size: expected ${AES_KEY_BYTES}-byte DEK, got ${dek.length} bytes`,
+    );
   }
   if (nonce.length !== GCM_NONCE_BYTES) {
     throw envelopeError(`invalid nonce size: expected ${GCM_NONCE_BYTES}-byte nonce, got ${nonce.length} bytes`);
@@ -141,10 +143,7 @@ export function encryptEnvelope(
   const credsJson = Buffer.from(JSON.stringify(credentials), 'utf8');
   const ciphertext = Buffer.concat([cipher.update(credsJson), cipher.final(), cipher.getAuthTag()]);
 
-  const wrappedDek = publicEncrypt(
-    { key: pubKey, padding: constants.RSA_PKCS1_OAEP_PADDING, oaepHash: 'sha256' },
-    dek,
-  );
+  const wrappedDek = publicEncrypt({ key: pubKey, padding: constants.RSA_PKCS1_OAEP_PADDING, oaepHash: 'sha256' }, dek);
 
   return {
     encryptedCredentials: ciphertext.toString('base64'),

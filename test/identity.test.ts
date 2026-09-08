@@ -66,7 +66,10 @@ const { IamDomainsIdentity } = await import('../src/provider/oci/identity.js');
 
 const awsCreds = { accessKey: 'ak', secretAccessKey: 'sk', region: 'us-east-1' };
 const azureCreds = { tenantId: 'tenant-1', clientId: 'client-1', clientSecret: 'secret', subscriptionId: 'sub-1' };
-const gcpCreds = { projectId: 'proj-1', serviceAccountJson: JSON.stringify({ project_id: 'proj-1', client_email: 'a@b.iam', private_key: 'k' }) };
+const gcpCreds = {
+  projectId: 'proj-1',
+  serviceAccountJson: JSON.stringify({ project_id: 'proj-1', client_email: 'a@b.iam', private_key: 'k' }),
+};
 const ociCreds = { tenancyOcid: 't', userOcid: 'u', fingerprint: 'f', privateKey: 'k', region: 'us-ashburn-1' };
 
 beforeEach(() => {
@@ -130,7 +133,10 @@ describe('CognitoIdentity (aws)', () => {
       Username: 'bob',
       Enabled: true,
       UserStatus: 'CONFIRMED',
-      UserAttributes: [{ Name: 'email', Value: 'bob@example.com' }, { Name: 'custom:role', Value: 'admin' }],
+      UserAttributes: [
+        { Name: 'email', Value: 'bob@example.com' },
+        { Name: 'custom:role', Value: 'admin' },
+      ],
     });
     const identity = new CognitoIdentity(awsCreds);
     const user = await identity.getUser('pool-1', 'bob');
@@ -170,7 +176,11 @@ describe('EntraIdentity (azure)', () => {
 
   it('getUser maps a Graph user into a provider-agnostic User', async () => {
     graphApi.mockReturnValueOnce(
-      graphRequest({ get: vi.fn().mockResolvedValue({ id: 'obj-1', userPrincipalName: 'bob@x.com', mail: 'bob@x.com', accountEnabled: true }) }),
+      graphRequest({
+        get: vi
+          .fn()
+          .mockResolvedValue({ id: 'obj-1', userPrincipalName: 'bob@x.com', mail: 'bob@x.com', accountEnabled: true }),
+      }),
     );
     const identity = new EntraIdentity(azureCreds);
     const user = await identity.getUser('tenant-1', 'bob@x.com');
@@ -189,9 +199,18 @@ describe('EntraIdentity (azure)', () => {
 
 describe('CloudIdentity (gcp)', () => {
   it('createUser creates via Firebase Admin and applies custom claims', async () => {
-    gcpAuth.createUser.mockResolvedValueOnce({ uid: 'uid-1', email: 'bob@x.com', disabled: false, customClaims: undefined });
+    gcpAuth.createUser.mockResolvedValueOnce({
+      uid: 'uid-1',
+      email: 'bob@x.com',
+      disabled: false,
+      customClaims: undefined,
+    });
     const identity = new CloudIdentity(gcpCreds);
-    const user = await identity.createUser('proj-1', { username: 'bob@x.com', password: 'pw', attributes: { role: 'admin' } });
+    const user = await identity.createUser('proj-1', {
+      username: 'bob@x.com',
+      password: 'pw',
+      attributes: { role: 'admin' },
+    });
     expect(gcpAuth.createUser).toHaveBeenCalledWith({ email: 'bob@x.com', password: 'pw' });
     expect(gcpAuth.setCustomUserClaims).toHaveBeenCalledWith('uid-1', { role: 'admin' });
     expect(user.attributes).toEqual({ role: 'admin' });
@@ -223,7 +242,13 @@ describe('IamDomainsIdentity (oci)', () => {
     const req = ociClient.createUser.mock.calls[0][0];
     expect(req.user.userName).toBe('bob');
     expect(req.user.name.familyName).toBe('bob');
-    expect(user).toEqual({ username: 'bob', email: 'bob@x.com', enabled: true, status: '', attributes: { id: 'id-1' } });
+    expect(user).toEqual({
+      username: 'bob',
+      email: 'bob@x.com',
+      enabled: true,
+      status: '',
+      attributes: { id: 'id-1' },
+    });
   });
 
   it('updateUser throws NotFoundError when the SCIM filter finds no user', async () => {

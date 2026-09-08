@@ -1,4 +1,4 @@
-import { models, QueueAdminClient, QueueClient } from 'oci-queue';
+import { type models, QueueAdminClient, QueueClient } from 'oci-queue';
 
 import type { OciCredentials } from '../../credentials/index.js';
 import { wrapProviderError } from '../../errors.js';

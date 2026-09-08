@@ -1,20 +1,25 @@
-import { ClientSecretCredential } from '@azure/identity';
-import { LogsIngestionClient } from '@azure/monitor-ingestion';
-import { LogsQueryClient, MetricsQueryClient, type AggregationType } from '@azure/monitor-query';
-import { MonitorClient, KnownOdatatype, KnownOperator, KnownAggregationTypeEnum, KnownCriterionType } from '@azure/arm-monitor';
+import {
+  KnownAggregationTypeEnum,
+  KnownCriterionType,
+  KnownOdatatype,
+  KnownOperator,
+  MonitorClient,
+} from '@azure/arm-monitor';
 import { OperationalInsightsManagementClient } from '@azure/arm-operationalinsights';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
+import type { ClientSecretCredential } from '@azure/identity';
+import { LogsIngestionClient } from '@azure/monitor-ingestion';
+import { type AggregationType, LogsQueryClient, MetricsQueryClient } from '@azure/monitor-query';
 import type { AzureCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type {
   AlarmInfo,
   AlarmOptions,
   GetLogsOptions,
   GetMetricsOptions,
   LogEvent,
-  Monitoring,
   MetricDatapoint,
   MetricDatum,
+  Monitoring,
 } from '../types/monitoring.js';
 import { azureCredential } from './auth.js';
 
@@ -26,7 +31,12 @@ export class AzureMonitoring implements Monitoring {
   private readonly dataCollectionEndpoint: string;
   private readonly credential: ClientSecretCredential;
 
-  constructor(creds: AzureCredentials, resourceGroup: string, logAnalyticsWorkspaceId: string, dataCollectionEndpoint: string) {
+  constructor(
+    creds: AzureCredentials,
+    resourceGroup: string,
+    logAnalyticsWorkspaceId: string,
+    dataCollectionEndpoint: string,
+  ) {
     this.subscriptionId = creds.subscriptionId;
     this.resourceGroup = resourceGroup;
     this.workspaceId = logAnalyticsWorkspaceId;
@@ -65,7 +75,11 @@ export class AzureMonitoring implements Monitoring {
     const client = new MetricsQueryClient(this.credential);
     const resourceUri = `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroup}/providers/${namespace}`;
 
-    const queryOpts: { timespan?: { startTime: Date; endTime: Date }; aggregations?: AggregationType[]; granularity?: string } = {};
+    const queryOpts: {
+      timespan?: { startTime: Date; endTime: Date };
+      aggregations?: AggregationType[];
+      granularity?: string;
+    } = {};
     if (opts?.startTime && opts?.endTime) {
       queryOpts.timespan = { startTime: opts.startTime, endTime: opts.endTime };
     }

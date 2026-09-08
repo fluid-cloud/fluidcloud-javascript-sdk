@@ -1,5 +1,5 @@
-import { InvalidCredentialsError, messageOf } from '../../errors.js';
 import type { GcpCredentials } from '../../credentials/index.js';
+import { InvalidCredentialsError, messageOf } from '../../errors.js';
 
 /** Shared client options for every @google-cloud/* constructor. */
 export interface GcpClientConfig {

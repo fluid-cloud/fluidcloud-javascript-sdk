@@ -1,7 +1,7 @@
 import { afterAll, describe, it } from 'vitest';
 
 import type { Client } from '../../src/index.js';
-import { clientFor, env, PROVIDERS, skipReason, uniqueName, type ProviderName } from './env.js';
+import { clientFor, env, PROVIDERS, type ProviderName, skipReason, uniqueName } from './env.js';
 import { recordSkip, runFn } from './reporter.js';
 
 const CATEGORY = 'Storage';

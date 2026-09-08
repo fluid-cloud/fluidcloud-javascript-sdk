@@ -2,7 +2,7 @@ import { EmailClient } from 'oci-email';
 import { EmailDPClient } from 'oci-emaildataplane';
 
 import type { OciCredentials } from '../../credentials/index.js';
-import { NotFoundError, InvalidCredentialsError, wrapProviderError } from '../../errors.js';
+import { InvalidCredentialsError, NotFoundError, wrapProviderError } from '../../errors.js';
 import type { Email, SendEmailOptions } from '../types/email.js';
 import { ociAuthProvider } from './auth.js';
 

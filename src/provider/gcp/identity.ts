@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { cert, initializeApp, type App, type ServiceAccount } from 'firebase-admin/app';
-import { getAuth, type Auth, type UserRecord } from 'firebase-admin/auth';
+import { type App, cert, initializeApp, type ServiceAccount } from 'firebase-admin/app';
+import { type Auth, getAuth, type UserRecord } from 'firebase-admin/auth';
 
 import type { GcpCredentials } from '../../credentials/index.js';
 import { UnsupportedError, wrapProviderError } from '../../errors.js';
@@ -58,7 +58,10 @@ export class CloudIdentity implements Identity {
       clientEmail: raw.client_email as string | undefined,
       privateKey: raw.private_key as string | undefined,
     };
-    const app: App = initializeApp({ credential: cert(serviceAccount), projectId: cfg.projectId }, `fluidcloud-identity-${randomUUID()}`);
+    const app: App = initializeApp(
+      { credential: cert(serviceAccount), projectId: cfg.projectId },
+      `fluidcloud-identity-${randomUUID()}`,
+    );
     this.client = getAuth(app);
     this.projectId = cfg.projectId;
   }

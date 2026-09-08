@@ -26,12 +26,7 @@ export function record(result: E2EResult): void {
  * Runs one live call, records the outcome, and never fails the surrounding test —
  * the report is the artifact, exactly as the Go harness behaves.
  */
-export async function runFn(
-  category: string,
-  fn: string,
-  provider: string,
-  body: () => Promise<void>,
-): Promise<void> {
+export async function runFn(category: string, fn: string, provider: string, body: () => Promise<void>): Promise<void> {
   const started = Date.now();
   try {
     await body();
@@ -114,5 +109,7 @@ export async function teardown(): Promise<void> {
   }
 
   writeFileSync(REPORT_PATH, lines.join('\n'));
-  process.stdout.write(`\nE2E report written to ${REPORT_PATH} — ${counts.pass} passed, ${counts.fail} failed, ${counts.skip} skipped\n`);
+  process.stdout.write(
+    `\nE2E report written to ${REPORT_PATH} — ${counts.pass} passed, ${counts.fail} failed, ${counts.skip} skipped\n`,
+  );
 }

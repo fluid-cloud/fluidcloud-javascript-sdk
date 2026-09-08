@@ -1,16 +1,15 @@
-import { Logging, type Entry } from '@google-cloud/logging';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
+import { type Entry, Logging } from '@google-cloud/logging';
 import type { GcpCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type {
   AlarmInfo,
   AlarmOptions,
   GetLogsOptions,
   GetMetricsOptions,
   LogEvent,
-  Monitoring,
   MetricDatapoint,
   MetricDatum,
+  Monitoring,
 } from '../types/monitoring.js';
 import { gcpClientConfig } from './auth.js';
 

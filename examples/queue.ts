@@ -34,7 +34,10 @@ const attrs = await queue.getQueueAttributes(queueId);
 console.log('queue attributes:', attrs);
 
 const queues = await queue.listQueues();
-console.log('all queues:', queues.map((q) => q.name));
+console.log(
+  'all queues:',
+  queues.map((q) => q.name),
+);
 
 await queue.deleteQueue(queueId);
 console.log('deleted queue:', queueId);
