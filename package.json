@@ -1,7 +1,7 @@
 {
   "name": "@fluidcloud/javascript-sdk",
-  "version": "0.1.0",
-  "description": "FluidCloud JavaScript SDK \u2014 one API across AWS, Azure, GCP and OCI",
+  "version": "0.1.1",
+  "description": "FluidCloud JavaScript SDK — one API across AWS, Azure, GCP and OCI",
   "license": "MIT",
   "repository": {
     "type": "git",

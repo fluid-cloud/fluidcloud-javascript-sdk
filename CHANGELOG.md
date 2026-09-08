@@ -13,6 +13,13 @@ the error taxonomy and the credential types.
 Provider capability changes are versioned by their effect on callers. A method
 that starts working is a **minor**; one that stops is a **major**.
 
+## 0.1.1 — 2026-09-08
+
+### Changed
+- Releases are published from GitHub Actions through npm trusted publishing
+  (OIDC) with a signed provenance attestation, instead of from a maintainer's
+  machine. No changes to the SDK itself.
+
 ## 0.1.0 — 2026-09-08
 
 Initial release. 13 services and 172 methods across AWS, Azure, GCP and OCI.
