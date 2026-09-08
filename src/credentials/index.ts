@@ -141,7 +141,9 @@ export class CloudEntity {
       privateKey: this.require('privateKey', 'oci', 'getOciCredentials'),
       region: this.region,
     };
-    const compartment = this.str('compartmentOcid');
+    // fcserver writes the compartment as "compartmentId"; "compartmentOcid" is
+    // the older name.
+    const compartment = this.first('compartmentOcid', 'compartmentId');
     if (compartment) creds.compartmentOcid = compartment;
     return creds;
   }
@@ -151,9 +153,9 @@ export class CloudEntity {
     if (this.provider !== PROVIDER_GCP) {
       throw new ProviderError(this.provider, 'getGcpCredentials', new InvalidCredentialsError());
     }
-    // The server returns the service-account JSON under "credentials"; accept
-    // "serviceAccountJson" too, which is what earlier payloads used.
-    const serviceAccountJson = this.str('serviceAccountJson') ?? this.str('credentials');
+    // fcserver stores the service-account JSON under "credentials", falling back
+    // to "serviceAccountKey"; "serviceAccountJson" is the older name.
+    const serviceAccountJson = this.first('serviceAccountJson', 'credentials', 'serviceAccountKey');
     if (!serviceAccountJson) {
       throw new ProviderError('gcp', 'getGcpCredentials', new InvalidCredentialsError());
     }
@@ -166,6 +168,20 @@ export class CloudEntity {
     const location = this.str('location');
     if (location) creds.location = location;
     return creds;
+  }
+
+  /**
+   * Returns the value of the first key that is present and non-empty; an empty
+   * string counts as absent. The server has emitted some values under more than
+   * one name, so callers pass every name the value is known by, oldest first —
+   * a payload already in the wild keeps winning.
+   */
+  private first(...keys: string[]): string | undefined {
+    for (const key of keys) {
+      const value = this.str(key);
+      if (value) return value;
+    }
+    return undefined;
   }
 
   private str(key: string): string | undefined {
