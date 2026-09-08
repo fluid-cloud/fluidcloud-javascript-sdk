@@ -13,11 +13,13 @@ the error taxonomy and the credential types.
 Provider capability changes are versioned by their effect on callers. A method
 that starts working is a **minor**; one that stops is a **major**.
 
-## Unreleased
+## 0.1.0 — 2026-09-08
+
+Initial release. 13 services and 172 methods across AWS, Azure, GCP and OCI.
 
 ### Added
-- Optional peer dependencies: the cloud SDKs are no longer installed for you, and
-  provider code loads on demand, so an app using one cloud never resolves the
+- The cloud SDKs are optional peer dependencies: you install only the ones you
+  use, and provider code loads on demand, so an app using one cloud never resolves the
   other three. An AWS-only install is about 61 MB rather than 650 MB.
 - Biome for linting and formatting, run in CI.
 - `bun run coverage` prints the per-provider implementation matrix.
@@ -37,7 +39,3 @@ that starts working is a **minor**; one that stops is a **major**.
 - Azure and OCI queue `sendMessage`/`receiveMessages` honor their options.
 - OCI streaming `commitOffset` records the given offset instead of committing a
   trim-horizon cursor, which rewound the consumer group.
-
-## 0.1.0
-
-Initial release. 13 services and 172 methods across AWS, Azure, GCP and OCI.
