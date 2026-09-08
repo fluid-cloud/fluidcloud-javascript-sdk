@@ -1,5 +1,5 @@
-import { RedisCacheBase, redisConnectionOptions } from '../shared/redis-cache.js';
 import { InvalidCredentialsError } from '../../errors.js';
+import { RedisCacheBase, redisConnectionOptions } from '../shared/redis-cache.js';
 
 /** GCP Memorystore for Redis. */
 export class MemorystoreRedis extends RedisCacheBase {

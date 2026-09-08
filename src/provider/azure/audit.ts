@@ -1,7 +1,6 @@
 import { MonitorClient } from '@azure/arm-monitor';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { AzureCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Audit, AuditEvent, LookupEventsOptions, TrailInfo, TrailOptions, TrailStatus } from '../types/audit.js';
 import { azureCredential } from './auth.js';
 

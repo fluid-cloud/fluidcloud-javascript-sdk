@@ -3,20 +3,19 @@ import {
   CreateDistributionCommand,
   CreateInvalidationCommand,
   DeleteDistributionCommand,
+  type Distribution,
+  type DistributionConfig,
+  type DistributionSummary,
   GetDistributionCommand,
   GetDistributionConfigCommand,
+  type GetDistributionConfigCommandOutput,
   GetInvalidationCommand,
   ListDistributionsCommand,
   ListInvalidationsCommand,
   UpdateDistributionCommand,
-  type Distribution,
-  type DistributionConfig,
-  type DistributionSummary,
-  type GetDistributionConfigCommandOutput,
 } from '@aws-sdk/client-cloudfront';
-
-import { NotFoundError, wrapProviderError } from '../../errors.js';
 import type { AwsCredentials } from '../../credentials/index.js';
+import { NotFoundError, wrapProviderError } from '../../errors.js';
 import type { Cdn, CdnDistribution, CdnDistributionOptions, CdnInvalidation } from '../types/cdn.js';
 import { awsClientConfig } from './auth.js';
 

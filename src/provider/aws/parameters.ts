@@ -4,9 +4,9 @@ import {
   GetParameterCommand,
   ParameterNotFound,
   ParameterType,
+  PutParameterCommand,
   paginateDescribeParameters,
   paginateGetParameterHistory,
-  PutParameterCommand,
   ResourceTypeForTagging,
   SSMClient,
 } from '@aws-sdk/client-ssm';
@@ -135,9 +135,7 @@ export class ParameterStore implements Parameters {
   async getVersion(name: string, version: string): Promise<string> {
     let output;
     try {
-      output = await this.client.send(
-        new GetParameterCommand({ Name: `${name}:${version}`, WithDecryption: true }),
-      );
+      output = await this.client.send(new GetParameterCommand({ Name: `${name}:${version}`, WithDecryption: true }));
     } catch (err) {
       return wrapProviderError('aws', 'GetParameter(Version)', err);
     }
@@ -153,7 +151,11 @@ export class ParameterStore implements Parameters {
       for await (const page of paginator) {
         for (const entry of page.Parameters ?? []) {
           const version = Number(entry.Version ?? 0);
-          versions.push({ version: String(version), status: 'previous', createdAt: entry.LastModifiedDate ?? new Date(0) });
+          versions.push({
+            version: String(version),
+            status: 'previous',
+            createdAt: entry.LastModifiedDate ?? new Date(0),
+          });
           if (version > latest) latest = version;
         }
       }

@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 
-import { ServiceBusAdministrationClient, ServiceBusClient, type ServiceBusReceivedMessage, type ServiceBusReceiver } from '@azure/service-bus';
+import {
+  ServiceBusAdministrationClient,
+  ServiceBusClient,
+  type ServiceBusReceivedMessage,
+  type ServiceBusReceiver,
+} from '@azure/service-bus';
 
 import type { AzureCredentials } from '../../credentials/index.js';
 import { NotFoundError, wrapProviderError } from '../../errors.js';
@@ -78,7 +83,9 @@ export class ServiceBusQueue implements Queue {
         body,
         messageId: id,
         ...(opts?.delaySeconds ? { scheduledEnqueueTimeUtc: new Date(Date.now() + opts.delaySeconds * 1000) } : {}),
-        ...(opts?.attributes && Object.keys(opts.attributes).length > 0 ? { applicationProperties: opts.attributes } : {}),
+        ...(opts?.attributes && Object.keys(opts.attributes).length > 0
+          ? { applicationProperties: opts.attributes }
+          : {}),
       });
       return id;
     } catch (err) {

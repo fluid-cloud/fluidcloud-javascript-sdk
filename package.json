@@ -1,7 +1,7 @@
 {
   "name": "@fluid-cloud/fluidcloud-javascript-sdk",
   "version": "0.1.0",
-  "description": "FluidCloud JavaScript SDK — one API across AWS, Azure, GCP and OCI",
+  "description": "FluidCloud JavaScript SDK \u2014 one API across AWS, Azure, GCP and OCI",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -46,6 +46,8 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "vitest run --config vitest.e2e.config.ts",
@@ -80,6 +82,7 @@
     "@azure/search-documents": "^13.0.0",
     "@azure/service-bus": "^7.9.5",
     "@azure/storage-blob": "^12.33.0",
+    "@biomejs/biome": "^2.5.12",
     "@google-cloud/compute": "^7.2.0",
     "@google-cloud/logging": "^12.0.1",
     "@google-cloud/parametermanager": "^0.6.0",

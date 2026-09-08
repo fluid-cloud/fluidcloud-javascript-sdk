@@ -12,7 +12,9 @@ vi.mock('@aws-sdk/client-secrets-manager', async () => {
   );
   return {
     ...actual,
-    SecretsManagerClient: vi.fn().mockImplementation(function SecretsManagerClient() { return { send: awsSendMock }; }),
+    SecretsManagerClient: vi.fn().mockImplementation(function SecretsManagerClient() {
+      return { send: awsSendMock };
+    }),
   };
 });
 
@@ -26,7 +28,9 @@ const azureMocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@azure/keyvault-secrets', () => ({
-  SecretClient: vi.fn().mockImplementation(function SecretClient() { return azureMocks; }),
+  SecretClient: vi.fn().mockImplementation(function SecretClient() {
+    return azureMocks;
+  }),
 }));
 
 const gcpMocks = vi.hoisted(() => ({
@@ -43,7 +47,9 @@ vi.mock('@google-cloud/secret-manager', async () => {
   const actual = await vi.importActual<typeof import('@google-cloud/secret-manager')>('@google-cloud/secret-manager');
   return {
     ...actual,
-    SecretManagerServiceClient: vi.fn().mockImplementation(function SecretManagerServiceClient() { return gcpMocks; }),
+    SecretManagerServiceClient: vi.fn().mockImplementation(function SecretManagerServiceClient() {
+      return gcpMocks;
+    }),
   };
 });
 
@@ -65,12 +71,22 @@ const ociMocks = vi.hoisted(() => ({
 
 vi.mock('oci-secrets', async () => {
   const actual = await vi.importActual<typeof import('oci-secrets')>('oci-secrets');
-  return { ...actual, SecretsClient: vi.fn().mockImplementation(function SecretsClient() { return ociMocks.secrets; }) };
+  return {
+    ...actual,
+    SecretsClient: vi.fn().mockImplementation(function SecretsClient() {
+      return ociMocks.secrets;
+    }),
+  };
 });
 
 vi.mock('oci-vault', async () => {
   const actual = await vi.importActual<typeof import('oci-vault')>('oci-vault');
-  return { ...actual, VaultsClient: vi.fn().mockImplementation(function VaultsClient() { return ociMocks.vault; }) };
+  return {
+    ...actual,
+    VaultsClient: vi.fn().mockImplementation(function VaultsClient() {
+      return ociMocks.vault;
+    }),
+  };
 });
 
 const { SecretsManager } = await import('../src/provider/aws/secrets.js');
@@ -187,10 +203,7 @@ describe('aws SecretsManager', () => {
   });
 
   it('rotateSecret gets then puts the same value', async () => {
-    awsSendMock
-      .mockResolvedValueOnce({ SecretString: 'v' })
-      .mockResolvedValueOnce({})
-      .mockResolvedValueOnce({});
+    awsSendMock.mockResolvedValueOnce({ SecretString: 'v' }).mockResolvedValueOnce({}).mockResolvedValueOnce({});
     const sm = new SecretsManager(awsCreds);
     await sm.rotateSecret('foo');
     expect(awsSendMock).toHaveBeenCalledTimes(3);
@@ -331,7 +344,14 @@ describe('gcp SecretManagerSecrets', () => {
     );
     const sm = new SecretManagerSecrets(gcpCreds);
     await expect(sm.list()).resolves.toEqual([
-      { name: 'foo', version: '', createdAt: new Date(0), updatedAt: new Date(0), description: '', tags: { env: 'prod' } },
+      {
+        name: 'foo',
+        version: '',
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
+        description: '',
+        tags: { env: 'prod' },
+      },
     ]);
 
     gcpMocks.listSecretVersionsAsync.mockReturnValueOnce(

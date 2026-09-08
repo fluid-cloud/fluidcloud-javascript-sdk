@@ -36,8 +36,8 @@ import type {
   StorageDeleteError,
   StorageListOptions,
   StorageObject,
-  StoragePutOptions,
   StorageOperation,
+  StoragePutOptions,
   UploadOptions,
 } from '../types/storage.js';
 import { awsClientConfig } from './auth.js';
@@ -94,7 +94,13 @@ export class S3Storage implements Storage {
     }
   }
 
-  async putStream(bucket: string, key: string, reader: Readable, size: number, opts?: StoragePutOptions): Promise<void> {
+  async putStream(
+    bucket: string,
+    key: string,
+    reader: Readable,
+    size: number,
+    opts?: StoragePutOptions,
+  ): Promise<void> {
     try {
       await this.client.send(
         new PutObjectCommand({
@@ -263,7 +269,8 @@ export class S3Storage implements Storage {
   }
 
   async upload(bucket: string, key: string, reader: Readable, size: number, opts?: UploadOptions): Promise<void> {
-    const threshold = opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
+    const threshold =
+      opts?.multipartThreshold && opts.multipartThreshold > 0 ? opts.multipartThreshold : DEFAULT_MULTIPART_THRESHOLD;
     const partSize = opts?.partSize && opts.partSize > 0 ? opts.partSize : DEFAULT_PART_SIZE;
     const putOpts: StoragePutOptions = { contentType: opts?.contentType, metadata: opts?.metadata };
 

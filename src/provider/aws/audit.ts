@@ -6,9 +6,8 @@ import {
   GetTrailStatusCommand,
   LookupEventsCommand,
 } from '@aws-sdk/client-cloudtrail';
-
-import { wrapProviderError } from '../../errors.js';
 import type { AwsCredentials } from '../../credentials/index.js';
+import { wrapProviderError } from '../../errors.js';
 import type { Audit, AuditEvent, LookupEventsOptions, TrailInfo, TrailOptions, TrailStatus } from '../types/audit.js';
 import { awsClientConfig } from './auth.js';
 

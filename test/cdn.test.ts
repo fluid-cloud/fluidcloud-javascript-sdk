@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-import { NotFoundError, UnsupportedError } from '../src/errors.js';
 import type { AwsCredentials, AzureCredentials, GcpCredentials } from '../src/credentials/index.js';
+import { NotFoundError, UnsupportedError } from '../src/errors.js';
 
 const awsSend = vi.fn();
 vi.mock('@aws-sdk/client-cloudfront', async (importOriginal) => {
@@ -90,7 +89,11 @@ describe('CloudFrontCdn (aws)', () => {
         Id: 'DIST1',
         DomainName: 'd1.cloudfront.net',
         Status: 'InProgress',
-        DistributionConfig: { Enabled: true, Comment: 'hi', Origins: { Items: [{ DomainName: 'origin.example.com' }] } },
+        DistributionConfig: {
+          Enabled: true,
+          Comment: 'hi',
+          Origins: { Items: [{ DomainName: 'origin.example.com' }] },
+        },
       },
     });
     const cdn = new CloudFrontCdn(awsCreds);
@@ -167,9 +170,18 @@ describe('CloudFrontCdn (aws)', () => {
   it('listDistributions and listInvalidations page through Marker/NextMarker', async () => {
     awsSend
       .mockResolvedValueOnce({
-        DistributionList: { IsTruncated: true, NextMarker: 'm2', Items: [{ Id: 'D1', DomainName: 'd1', Status: 's', Enabled: true, Comment: '' }] },
+        DistributionList: {
+          IsTruncated: true,
+          NextMarker: 'm2',
+          Items: [{ Id: 'D1', DomainName: 'd1', Status: 's', Enabled: true, Comment: '' }],
+        },
       })
-      .mockResolvedValueOnce({ DistributionList: { IsTruncated: false, Items: [{ Id: 'D2', DomainName: 'd2', Status: 's', Enabled: false, Comment: '' }] } });
+      .mockResolvedValueOnce({
+        DistributionList: {
+          IsTruncated: false,
+          Items: [{ Id: 'D2', DomainName: 'd2', Status: 's', Enabled: false, Comment: '' }],
+        },
+      });
     const cdn = new CloudFrontCdn(awsCreds);
     const dists = await cdn.listDistributions();
     expect(dists.map((d) => d.id)).toEqual(['D1', 'D2']);
@@ -189,7 +201,13 @@ describe('FrontDoorCdn (azure)', () => {
 
   it('createDistribution creates an AFD endpoint tagged with the origin domain', async () => {
     azureCreate.mockReturnValue(
-      poller({ name: 'fc-1', hostName: 'ep.azurefd.net', deploymentStatus: 'Succeeded', enabledState: 'Enabled', tags: { 'fc-origin-domain': 'origin.example.com' } }),
+      poller({
+        name: 'fc-1',
+        hostName: 'ep.azurefd.net',
+        deploymentStatus: 'Succeeded',
+        enabledState: 'Enabled',
+        tags: { 'fc-origin-domain': 'origin.example.com' },
+      }),
     );
     const cdn = new FrontDoorCdn(azureCreds, 'rg', 'profile');
     const result = await cdn.createDistribution({ originDomain: 'origin.example.com', enabled: true });
@@ -274,7 +292,11 @@ describe('CloudCdn (gcp)', () => {
     });
     const insertArgs = gcpInsert.mock.calls[0][0];
     expect(insertArgs.project).toBe('p');
-    expect(insertArgs.backendBucketResource).toMatchObject({ bucketName: 'origin.example.com', enableCdn: true, description: 'hi' });
+    expect(insertArgs.backendBucketResource).toMatchObject({
+      bucketName: 'origin.example.com',
+      enableCdn: true,
+      description: 'hi',
+    });
     expect(gcpGet.mock.calls[0][0]).toEqual({ project: 'p', backendBucket: insertArgs.backendBucketResource.name });
   });
 

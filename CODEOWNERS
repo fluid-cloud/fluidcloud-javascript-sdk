@@ -1,4 +1,4 @@
-# Every change to this SDK needs a review from the platform team.
+# Every change to this SDK needs a review from one of these teams.
 # Requires the team to have write access to the repository, and
 # "require review from Code Owners" enabled on the develop ruleset.
-*       @fluid-cloud/platform
+*       @fluid-cloud/platform @fluid-cloud/ui

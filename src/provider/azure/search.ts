@@ -1,4 +1,4 @@
-import { AzureKeyCredential, SearchClient, SearchIndexClient, type SearchIndex } from '@azure/search-documents';
+import { AzureKeyCredential, type SearchClient, type SearchIndex, SearchIndexClient } from '@azure/search-documents';
 
 import { InvalidCredentialsError, UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Search, SearchDocument, SearchHit, SearchResult } from '../types/search.js';
@@ -42,7 +42,7 @@ export class AiSearch implements Search {
   }
 
   async createIndex(index: string, mapping?: Record<string, unknown>): Promise<void> {
-    const hasFields = !!mapping && Object.prototype.hasOwnProperty.call(mapping, 'fields');
+    const hasFields = !!mapping && Object.hasOwn(mapping, 'fields');
     const definition = hasFields
       ? { ...mapping, name: index }
       : { name: index, fields: [{ name: 'id', type: 'Edm.String', key: true }] };

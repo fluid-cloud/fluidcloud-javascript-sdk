@@ -11,9 +11,9 @@ import {
   ListShardsCommand,
   ListStreamsCommand,
   PutRecordsCommand,
+  type Shard,
   ShardIteratorType,
   waitUntilStreamExists,
-  type Shard,
 } from '@aws-sdk/client-kinesis';
 import { Kafka } from 'kafkajs';
 
@@ -23,8 +23,8 @@ import type {
   GetRecordsOptions,
   StreamCreateOptions,
   StreamInfo,
-  StreamRecord,
   Streaming,
+  StreamRecord,
 } from '../types/streaming.js';
 import { awsClientConfig } from './auth.js';
 
@@ -153,9 +153,7 @@ export class KinesisStreaming implements Streaming {
     try {
       do {
         const out = await this.client.send(
-          nextToken
-            ? new ListShardsCommand({ NextToken: nextToken })
-            : new ListShardsCommand({ StreamName: streamId }),
+          nextToken ? new ListShardsCommand({ NextToken: nextToken }) : new ListShardsCommand({ StreamName: streamId }),
         );
         shards.push(...(out.Shards ?? []));
         nextToken = out.NextToken || undefined;
@@ -424,7 +422,11 @@ export class MskStreaming implements Streaming {
     const admin = this.kafka.admin();
     try {
       await admin.connect();
-      await admin.setOffsets({ groupId: groupName, topic: streamId, partitions: [{ partition, offset: String(offset) }] });
+      await admin.setOffsets({
+        groupId: groupName,
+        topic: streamId,
+        partitions: [{ partition, offset: String(offset) }],
+      });
     } catch (err) {
       wrapProviderError('aws', 'CommitOffset', err);
     } finally {

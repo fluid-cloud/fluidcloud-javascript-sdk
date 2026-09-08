@@ -1,11 +1,11 @@
+import { EventHubManagementClient } from '@azure/arm-eventhub';
 import {
-  earliestEventPosition,
+  type EventData,
   EventHubConsumerClient,
   EventHubProducerClient,
-  type EventData,
   type EventPosition,
+  earliestEventPosition,
 } from '@azure/event-hubs';
-import { EventHubManagementClient } from '@azure/arm-eventhub';
 
 import type { AzureCredentials } from '../../credentials/index.js';
 import { InvalidCredentialsError, wrapProviderError } from '../../errors.js';
@@ -13,8 +13,8 @@ import type {
   GetRecordsOptions,
   StreamCreateOptions,
   StreamInfo,
-  StreamRecord,
   Streaming,
+  StreamRecord,
 } from '../types/streaming.js';
 import { azureCredential } from './auth.js';
 
@@ -135,9 +135,8 @@ export class EventHubsStreaming implements Streaming {
     const groupName = opts.consumerGroup || EventHubConsumerClient.defaultConsumerGroupName;
     const partition = opts.partition ?? 0;
     const consumer = new EventHubConsumerClient(groupName, this.fqns, streamId, this.credential);
-    const startPosition: EventPosition = opts.offset && opts.offset > 0
-      ? { sequenceNumber: opts.offset }
-      : earliestEventPosition;
+    const startPosition: EventPosition =
+      opts.offset && opts.offset > 0 ? { sequenceNumber: opts.offset } : earliestEventPosition;
     try {
       const records = await new Promise<StreamRecord[]>((resolve, reject) => {
         const subscription = consumer.subscribe(

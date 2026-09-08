@@ -1,7 +1,6 @@
 import { AuditClient } from 'oci-audit';
-
-import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { OciCredentials } from '../../credentials/index.js';
+import { UnsupportedError, wrapProviderError } from '../../errors.js';
 import type { Audit, AuditEvent, LookupEventsOptions, TrailInfo, TrailOptions, TrailStatus } from '../types/audit.js';
 import { ociAuthProvider } from './auth.js';
 
@@ -58,7 +57,12 @@ export class OciAudit implements Audit {
 
   /** Unsupported: OCI Audit is always-on and does not support trail creation via API. */
   async createTrail(_name: string, _opts: TrailOptions): Promise<void> {
-    throw new UnsupportedError('oci', 'createTrail', 'OCI Audit is always-on and does not support trail creation via API.', '');
+    throw new UnsupportedError(
+      'oci',
+      'createTrail',
+      'OCI Audit is always-on and does not support trail creation via API.',
+      '',
+    );
   }
 
   /** Unsupported: OCI Audit is always-on and does not support trail deletion. */

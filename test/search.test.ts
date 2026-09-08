@@ -1,4 +1,4 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { osInstance, ClientMock, ClientCtor } = vi.hoisted(() => {
   const instance = {
@@ -67,15 +67,17 @@ vi.mock('@azure/search-documents', () => ({
   SearchClient: vi.fn(),
 }));
 
+import type { AwsCredentials } from '../src/credentials/index.js';
+import { InvalidCredentialsError, ProviderError, UnsupportedError } from '../src/errors.js';
 import { OpenSearchAws } from '../src/provider/aws/search.js';
-import { OpenSearchOci } from '../src/provider/oci/search.js';
 import { AiSearch } from '../src/provider/azure/search.js';
 import { GcpSearch } from '../src/provider/gcp/search.js';
-import { InvalidCredentialsError, ProviderError, UnsupportedError } from '../src/errors.js';
-import type { AwsCredentials } from '../src/credentials/index.js';
+import { OpenSearchOci } from '../src/provider/oci/search.js';
 
 function resetOsMocks(): void {
-  Object.values(osInstance.indices).forEach((fn) => fn.mockReset());
+  Object.values(osInstance.indices).forEach((fn) => {
+    fn.mockReset();
+  });
   osInstance.cat.indices.mockReset();
   osInstance.index.mockReset();
   osInstance.get.mockReset();

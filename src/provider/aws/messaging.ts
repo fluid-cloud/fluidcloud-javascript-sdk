@@ -3,11 +3,11 @@ import {
   DeleteTopicCommand,
   ListSubscriptionsByTopicCommand,
   ListTopicsCommand,
+  type MessageAttributeValue,
   PublishCommand,
   SNSClient,
   SubscribeCommand,
   UnsubscribeCommand,
-  type MessageAttributeValue,
 } from '@aws-sdk/client-sns';
 
 import type { AwsCredentials } from '../../credentials/index.js';

@@ -63,10 +63,7 @@ export class VaultSecrets implements Secrets {
     return this.keyOcid;
   }
 
-  private async waitForSecretState(
-    secretOcid: string,
-    desired: ociVault.models.Secret.LifecycleState,
-  ): Promise<void> {
+  private async waitForSecretState(secretOcid: string, desired: ociVault.models.Secret.LifecycleState): Promise<void> {
     for (let i = 0; i < 30; i++) {
       let resp: ociVault.responses.GetSecretResponse;
       try {

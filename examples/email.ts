@@ -1,4 +1,4 @@
-import { isUnsupported, createClient } from '../src/index.js';
+import { createClient, isUnsupported } from '../src/index.js';
 
 const client = await createClient(
   {

@@ -2,8 +2,8 @@ import {
   CreateEmailIdentityCommand,
   DeleteEmailIdentityCommand,
   ListEmailIdentitiesCommand,
-  SendEmailCommand,
   SESv2Client,
+  SendEmailCommand,
 } from '@aws-sdk/client-sesv2';
 
 import type { AwsCredentials } from '../../credentials/index.js';

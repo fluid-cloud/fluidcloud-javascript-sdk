@@ -1,7 +1,7 @@
 import { Client } from '@microsoft/microsoft-graph-client';
 
 import type { AzureCredentials } from '../../credentials/index.js';
-import { NotFoundError, UnsupportedError, messageOf, wrapProviderError } from '../../errors.js';
+import { messageOf, NotFoundError, UnsupportedError, wrapProviderError } from '../../errors.js';
 import type {
   AuthTokens,
   GroupInfo,
@@ -263,7 +263,9 @@ export class EntraIdentity implements Identity {
     const groupId = await this.findGroupId(group);
     const userId = await this.findUserId(username);
     try {
-      await this.client.api(`/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}/$ref`).delete();
+      await this.client
+        .api(`/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}/$ref`)
+        .delete();
     } catch (err) {
       wrapProviderError('azure', 'removeUserFromGroup', err);
     }
@@ -285,7 +287,13 @@ export class EntraIdentity implements Identity {
     }
   }
 
-  async signUp(poolId: string, _clientId: string, username: string, password: string, attributes?: Record<string, string>): Promise<void> {
+  async signUp(
+    poolId: string,
+    _clientId: string,
+    username: string,
+    password: string,
+    attributes?: Record<string, string>,
+  ): Promise<void> {
     await this.createUser(poolId, { username, password, attributes });
   }
 
