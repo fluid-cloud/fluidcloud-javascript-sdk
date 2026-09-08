@@ -1,8 +1,11 @@
 name: Release
 
+# Publishing is a deliberate act: cutting a GitHub Release publishes it. A bare
+# tag push does not, so tags stay cheap. Triggering on both would double-publish,
+# because creating a release through the UI also fires the tag push event.
 on:
-  push:
-    tags: ['v*']
+  release:
+    types: [published]
 
 permissions:
   contents: read
@@ -33,12 +36,12 @@ jobs:
           bun run test
           bun run build
 
-      - name: Fail if the tag does not match package.json
+      - name: Fail if the release tag does not match package.json
         run: |
           tag="${GITHUB_REF_NAME#v}"
           pkg="$(node -p "require('./package.json').version")"
           if [ "$tag" != "$pkg" ]; then
-            echo "tag v$tag does not match package.json version $pkg"
+            echo "release tag v$tag does not match package.json version $pkg"
             exit 1
           fi
 
