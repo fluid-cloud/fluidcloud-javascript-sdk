@@ -7,5 +7,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   target: 'node18',
-  splitting: false,
+  // Required: the provider modules are dynamically imported so that an app
+  // using one cloud never resolves the other three cloud SDKs. Without
+  // splitting, esbuild inlines them and hoists their imports to the top of the
+  // ESM bundle, making every provider eager again.
+  splitting: true,
 });
