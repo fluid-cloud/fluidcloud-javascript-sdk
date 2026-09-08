@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@fluid-cloud/fluidcloud-js-sdk",
+      "name": "@fluidcloud/javascript-sdk",
       "devDependencies": {
         "@aws-sdk/client-cloudfront": "^3.1126.0",
         "@aws-sdk/client-cloudtrail": "^3.1126.0",
