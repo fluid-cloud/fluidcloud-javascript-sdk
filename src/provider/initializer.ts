@@ -8,10 +8,6 @@ import {
   type Provider,
 } from '../credentials/index.js';
 import { InvalidCredentialsError, ProviderNotFoundError } from '../errors.js';
-import * as aws from './aws/index.js';
-import * as azure from './azure/index.js';
-import * as gcp from './gcp/index.js';
-import * as oci from './oci/index.js';
 import type {
   Audit,
   Cache,
@@ -27,6 +23,21 @@ import type {
   Storage,
   Streaming,
 } from './types/index.js';
+
+/**
+ * Provider implementations load on demand, so an application that only talks to
+ * one cloud never resolves the other three cloud SDKs. Each module is imported
+ * at most once and the promise is reused.
+ */
+let awsModule: Promise<typeof import('./aws/index.js')> | undefined;
+let azureModule: Promise<typeof import('./azure/index.js')> | undefined;
+let gcpModule: Promise<typeof import('./gcp/index.js')> | undefined;
+let ociModule: Promise<typeof import('./oci/index.js')> | undefined;
+
+const loadAws = () => (awsModule ??= import('./aws/index.js'));
+const loadAzure = () => (azureModule ??= import('./azure/index.js'));
+const loadGcp = () => (gcpModule ??= import('./gcp/index.js'));
+const loadOci = () => (ociModule ??= import('./oci/index.js'));
 
 /** Provider-specific options needed to reach services the entity does not describe. */
 export interface ProviderOptions {
@@ -145,7 +156,7 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.S3Storage(entity.getAwsCredentials(), opts.region);
+        return new (await loadAws()).S3Storage(entity.getAwsCredentials(), opts.region);
       case PROVIDER_AZURE: {
         const account = required(opts.storageAccount, 'storage account name is required for Azure');
         const creds = entity.getAzureCredentials();
@@ -155,16 +166,16 @@ export class CloudServiceInitializer {
           creds.storageAccountName = account;
           creds.storageAccountKey = opts.storageAccountKey;
         }
-        return new azure.BlobStorage(creds, account);
+        return new (await loadAzure()).BlobStorage(creds, account);
       }
       case PROVIDER_OCI:
-        return new oci.ObjectStorage(
+        return new (await loadOci()).ObjectStorage(
           entity.getOciCredentials(),
           required(opts.namespace, 'namespace is required for OCI'),
           opts.compartment,
         );
       case PROVIDER_GCP:
-        return new gcp.GcsStorage(entity.getGcpCredentials());
+        return new (await loadGcp()).GcsStorage(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -175,21 +186,21 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.SecretsManager(entity.getAwsCredentials());
+        return new (await loadAws()).SecretsManager(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.KeyVaultSecrets(
+        return new (await loadAzure()).KeyVaultSecrets(
           entity.getAzureCredentials(),
           required(opts.keyVaultName, 'key vault name is required for Azure'),
         );
       case PROVIDER_OCI:
-        return new oci.VaultSecrets(
+        return new (await loadOci()).VaultSecrets(
           entity.getOciCredentials(),
           required(opts.vaultOcid, 'vault OCID is required for OCI'),
           required(opts.compartment, 'compartment is required for OCI'),
           opts.keyOcid,
         );
       case PROVIDER_GCP:
-        return new gcp.SecretManagerSecrets(entity.getGcpCredentials());
+        return new (await loadGcp()).SecretManagerSecrets(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -200,24 +211,24 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.ParameterStore(entity.getAwsCredentials());
+        return new (await loadAws()).ParameterStore(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.AppConfigurationParameters(
+        return new (await loadAzure()).AppConfigurationParameters(
           entity.getAzureCredentials(),
           required(opts.appConfigEndpoint, 'app configuration endpoint is required for Azure'),
         );
       case PROVIDER_OCI: {
         // OCI has no parameter store, so parameters are served from Vault secrets.
-        const vault = new oci.VaultSecrets(
+        const vault = new (await loadOci()).VaultSecrets(
           entity.getOciCredentials(),
           required(opts.vaultOcid, 'vault OCID is required for OCI'),
           required(opts.compartment, 'compartment is required for OCI'),
           opts.keyOcid,
         );
-        return new oci.VaultParameters(vault);
+        return new (await loadOci()).VaultParameters(vault);
       }
       case PROVIDER_GCP:
-        return new gcp.ParameterManagerParameters(entity.getGcpCredentials());
+        return new (await loadGcp()).ParameterManagerParameters(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -228,18 +239,18 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.SnsMessaging(entity.getAwsCredentials());
+        return new (await loadAws()).SnsMessaging(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.ServiceBusMessaging(
+        return new (await loadAzure()).ServiceBusMessaging(
           entity.getAzureCredentials(),
           required(opts.serviceBusNamespace, 'service bus namespace is required for Azure'),
         );
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
-        return new oci.OnsMessaging(creds, opts.compartment ?? creds.compartmentOcid ?? '');
+        return new (await loadOci()).OnsMessaging(creds, opts.compartment ?? creds.compartmentOcid ?? '');
       }
       case PROVIDER_GCP:
-        return new gcp.PubSubMessaging(entity.getGcpCredentials());
+        return new (await loadGcp()).PubSubMessaging(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -250,19 +261,19 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.SqsQueue(entity.getAwsCredentials());
+        return new (await loadAws()).SqsQueue(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.ServiceBusQueue(
+        return new (await loadAzure()).ServiceBusQueue(
           entity.getAzureCredentials(),
           required(opts.serviceBusNamespace, 'service bus namespace is required for Azure'),
         );
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
         const compartment = opts.ociQueueCompartment ?? opts.compartment ?? creds.compartmentOcid ?? '';
-        return new oci.OciQueue(creds, compartment);
+        return new (await loadOci()).OciQueue(creds, compartment);
       }
       case PROVIDER_GCP:
-        return new gcp.PubSubQueue(entity.getGcpCredentials());
+        return new (await loadGcp()).PubSubQueue(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -273,19 +284,19 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.SesEmail(entity.getAwsCredentials());
+        return new (await loadAws()).SesEmail(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.AcsEmail(
+        return new (await loadAzure()).AcsEmail(
           required(opts.acsEndpoint, 'ACS endpoint is required for Azure'),
           required(opts.acsKey, 'ACS key is required for Azure'),
         );
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
         const compartment = opts.ociEmailCompartment ?? opts.compartment ?? creds.compartmentOcid ?? '';
-        return new oci.OciEmail(creds, compartment);
+        return new (await loadOci()).OciEmail(creds, compartment);
       }
       case PROVIDER_GCP:
-        return new gcp.GcpEmail();
+        return new (await loadGcp()).GcpEmail();
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -296,9 +307,9 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.CloudWatchMonitoring(entity.getAwsCredentials());
+        return new (await loadAws()).CloudWatchMonitoring(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.AzureMonitoring(
+        return new (await loadAzure()).AzureMonitoring(
           entity.getAzureCredentials(),
           opts.resourceGroup ?? '',
           opts.logAnalyticsWorkspaceId ?? '',
@@ -306,10 +317,10 @@ export class CloudServiceInitializer {
         );
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
-        return new oci.OciMonitoring(creds, opts.compartment ?? creds.compartmentOcid ?? '');
+        return new (await loadOci()).OciMonitoring(creds, opts.compartment ?? creds.compartmentOcid ?? '');
       }
       case PROVIDER_GCP:
-        return new gcp.CloudMonitoring(entity.getGcpCredentials());
+        return new (await loadGcp()).CloudMonitoring(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -320,15 +331,15 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.CloudTrailAudit(entity.getAwsCredentials());
+        return new (await loadAws()).CloudTrailAudit(entity.getAwsCredentials());
       case PROVIDER_AZURE:
-        return new azure.ActivityLogAudit(entity.getAzureCredentials());
+        return new (await loadAzure()).ActivityLogAudit(entity.getAzureCredentials());
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
-        return new oci.OciAudit(creds, opts.compartment ?? creds.compartmentOcid ?? '');
+        return new (await loadOci()).OciAudit(creds, opts.compartment ?? creds.compartmentOcid ?? '');
       }
       case PROVIDER_GCP:
-        return new gcp.CloudAudit(entity.getGcpCredentials());
+        return new (await loadGcp()).CloudAudit(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -341,21 +352,21 @@ export class CloudServiceInitializer {
       case PROVIDER_AWS: {
         const creds = entity.getAwsCredentials();
         // Kinesis is the default; MSK is selected by supplying bootstrap servers.
-        if (opts.mskBootstrapServers) return new aws.MskStreaming(creds, opts.mskBootstrapServers);
-        return new aws.KinesisStreaming(creds, opts.region);
+        if (opts.mskBootstrapServers) return new (await loadAws()).MskStreaming(creds, opts.mskBootstrapServers);
+        return new (await loadAws()).KinesisStreaming(creds, opts.region);
       }
       case PROVIDER_AZURE:
-        return new azure.EventHubsStreaming(
+        return new (await loadAzure()).EventHubsStreaming(
           entity.getAzureCredentials(),
           opts.resourceGroup ?? '',
           required(opts.eventHubsNamespace, 'event hubs namespace is required for Azure'),
         );
       case PROVIDER_OCI: {
         const creds = entity.getOciCredentials();
-        return new oci.OciStreaming(creds, opts.compartment ?? creds.compartmentOcid ?? '');
+        return new (await loadOci()).OciStreaming(creds, opts.compartment ?? creds.compartmentOcid ?? '');
       }
       case PROVIDER_GCP:
-        return new gcp.PubSubStreaming(entity.getGcpCredentials());
+        return new (await loadGcp()).PubSubStreaming(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -366,18 +377,18 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.CloudFrontCdn(entity.getAwsCredentials(), opts.region);
+        return new (await loadAws()).CloudFrontCdn(entity.getAwsCredentials(), opts.region);
       case PROVIDER_AZURE:
-        return new azure.FrontDoorCdn(
+        return new (await loadAzure()).FrontDoorCdn(
           entity.getAzureCredentials(),
           opts.resourceGroup ?? '',
           required(opts.cdnProfileName, 'CDN profile name is required for Azure'),
         );
       case PROVIDER_OCI:
         // OCI has no native CDN; every operation throws UnsupportedError.
-        return new oci.OciCdn();
+        return new (await loadOci()).OciCdn();
       case PROVIDER_GCP:
-        return new gcp.CloudCdn(entity.getGcpCredentials());
+        return new (await loadGcp()).CloudCdn(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -388,16 +399,16 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.CognitoIdentity(entity.getAwsCredentials(), opts.region);
+        return new (await loadAws()).CognitoIdentity(entity.getAwsCredentials(), opts.region);
       case PROVIDER_AZURE:
-        return new azure.EntraIdentity(entity.getAzureCredentials());
+        return new (await loadAzure()).EntraIdentity(entity.getAzureCredentials());
       case PROVIDER_OCI:
-        return new oci.IamDomainsIdentity(
+        return new (await loadOci()).IamDomainsIdentity(
           entity.getOciCredentials(),
           required(opts.identityDomainEndpoint, 'identity domain endpoint is required for OCI'),
         );
       case PROVIDER_GCP:
-        return new gcp.CloudIdentity(entity.getGcpCredentials());
+        return new (await loadGcp()).CloudIdentity(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -411,13 +422,13 @@ export class CloudServiceInitializer {
     const db = opts.redisDb ?? 0;
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.ElastiCacheRedis(endpoint, password, opts.redisTls ?? false, db);
+        return new (await loadAws()).ElastiCacheRedis(endpoint, password, opts.redisTls ?? false, db);
       case PROVIDER_AZURE:
-        return new azure.AzureRedisCache(endpoint, password, db);
+        return new (await loadAzure()).AzureRedisCache(endpoint, password, db);
       case PROVIDER_OCI:
-        return new oci.OciRedisCache(endpoint, password, opts.redisTls ?? false, db);
+        return new (await loadOci()).OciRedisCache(endpoint, password, opts.redisTls ?? false, db);
       case PROVIDER_GCP:
-        return new gcp.MemorystoreRedis(endpoint, password, opts.redisTls ?? false, db);
+        return new (await loadGcp()).MemorystoreRedis(endpoint, password, opts.redisTls ?? false, db);
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
@@ -428,24 +439,24 @@ export class CloudServiceInitializer {
     const entity = await this.getEntity(entityId);
     switch (entity.provider) {
       case PROVIDER_AWS:
-        return new aws.OpenSearchAws(
+        return new (await loadAws()).OpenSearchAws(
           entity.getAwsCredentials(),
           required(opts.searchEndpoint, 'search endpoint is required'),
           opts.region,
         );
       case PROVIDER_AZURE:
-        return new azure.AiSearch(
+        return new (await loadAzure()).AiSearch(
           required(opts.searchEndpoint, 'search endpoint is required'),
           required(opts.searchApiKey, 'search API key is required for Azure'),
         );
       case PROVIDER_OCI:
-        return new oci.OpenSearchOci(
+        return new (await loadOci()).OpenSearchOci(
           required(opts.searchEndpoint, 'search endpoint is required'),
           opts.searchUsername ?? '',
           opts.searchPassword ?? '',
         );
       case PROVIDER_GCP:
-        return new gcp.GcpSearch();
+        return new (await loadGcp()).GcpSearch();
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }
