@@ -8,13 +8,85 @@ This is a port of [`fluidcloud-go-sdk`](https://github.com/fluid-cloud/fluidclou
 services and the same 172 methods, including its emulations and its deliberate
 gaps.
 
+## Setup
+
+FluidCloud is the credential manager. You hand it your cloud credentials **once**,
+in the portal, and from then on your application holds a single FluidCloud API
+key instead of an access key, a client secret or a private key.
+
+```
+ONE TIME — in the FluidCloud portal
+  /accounts             onboard a cloud account          ──▶  an entity ID
+                        (AWS · Azure · GCP · OCI)
+  /settings/api-keys    generate an API key              ──▶  fc_<keyid>_<secret>
+
+EVERY RUN — in your application
+  createClient({ apiKey, entityId })                     ──▶  credentials fetched
+                                                              and decrypted in memory
+
+  your app stores: the API key and the entity ID
+  your app never stores: an access key, a client secret, a private key
+```
+
+### 1. Add your cloud account
+
+In the FluidCloud portal, go to **Accounts** (`/accounts`) and onboard the cloud
+account you want the SDK to act as. This is where the cloud credentials live:
+AWS access keys or an assume-role ARN, an Azure service principal, a GCP
+service-account JSON key, or an OCI API signing key.
+
+Onboarding gives you an **entity ID**. That single value decides which cloud the
+SDK talks to — swap it and the same code runs against a different provider.
+
+### 2. Generate an API key
+
+Go to **Settings → API Keys** (`/settings/api-keys`) and generate one. The key
+looks like `fc_<keyid>_<secret>` and is **shown only once**, so store it as a
+secret in your deployment.
+
+Or over the API:
+
+```bash
+curl -X POST https://app.fluidcloud.com/fcauth/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "you@example.com", "password": "..."}' -c cookies.txt
+
+curl -X POST https://app.fluidcloud.com/fcauth/api/v1/user/api-keys \
+  -H 'Content-Type: application/json' -b cookies.txt \
+  -d '{"name": "my-service", "description": "server-side SDK access"}'
+```
+
+### 3. Install the SDK and your cloud's packages
+
+See [Installing](#installing) below — you install only the clouds your
+entities actually use.
+
+### 4. Create a client
+
+```ts
+const client = await createClient({
+  apiKey: process.env.API_KEY!,
+  entityId: process.env.ENTITY_ID!,
+});
+```
+
+That is the whole setup. What happens on that call: the SDK generates an
+ephemeral RSA key pair, asks the FluidCloud server for the entity's credentials,
+and decrypts them in memory. The cloud credentials never appear in your
+environment, your config, or your logs — and rotating them is something you do
+in the portal, without redeploying anything.
+
+---
+
+## Installing
+
 ```bash
 bun add @fluid-cloud/fluidcloud-javascript-sdk    # or npm install
 ```
 
 Node 18 or newer. TypeScript types are bundled; ESM and CJS both work.
 
-### Install only the clouds you use
+### Only the clouds you use
 
 The cloud SDKs are **optional peer dependencies**, and provider code is loaded on
 demand, so installing this package pulls in none of them. Add the set for each
@@ -105,6 +177,8 @@ four providers back the cache with Redis.
 
 ---
 
+---
+
 ## Quick start
 
 ```ts
@@ -123,6 +197,9 @@ await client.close();
 
 The entity decides the provider. The same code above runs against S3, Azure Blob,
 GCS or OCI Object Storage with no changes.
+
+For the same work written directly against each cloud's SDK, side by side with
+this one, see [`examples/BEFORE_AND_AFTER.md`](./examples/BEFORE_AND_AFTER.md).
 
 ---
 
@@ -240,7 +317,9 @@ const id = await client.queue.sendMessage(queueId, JSON.stringify({ job: 'resize
 const messages = await client.queue.receiveMessages(queueId, 10, { waitTimeSeconds: 20 });
 ```
 
-Runnable examples for every service are in [`examples/`](./examples).
+Runnable examples for every service are in [`examples/`](./examples), and
+[`examples/BEFORE_AND_AFTER.md`](./examples/BEFORE_AND_AFTER.md) shows the same
+tasks written against the raw cloud SDKs for comparison.
 
 ---
 
