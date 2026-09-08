@@ -9,7 +9,8 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # required for npm provenance
+  id-token: write   # mints the OIDC token npm trusted publishing exchanges for
+                    # short-lived credentials, and signs the provenance attestation
 
 jobs:
   publish:
@@ -32,6 +33,7 @@ jobs:
 
       - name: Verify
         run: |
+          bun run lint
           bun run typecheck
           bun run test
           bun run build
@@ -45,7 +47,13 @@ jobs:
             exit 1
           fi
 
+      # Trusted publishing needs npm 11.5.1 or newer; the npm bundled with the
+      # Node runner is older, so it is upgraded rather than assumed.
+      - name: Use an npm that supports trusted publishing
+        run: npm install -g npm@latest
+
+      # No token: npm exchanges the OIDC token for short-lived credentials, which
+      # is why there is no NODE_AUTH_TOKEN here. Provenance is signed from the
+      # same identity.
       - name: Publish
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
