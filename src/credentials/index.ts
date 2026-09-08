@@ -171,9 +171,10 @@ export class CloudEntity {
   }
 
   /**
-   * Returns the first key present in the credential map. The server has emitted
-   * some values under more than one name over time, so callers pass every name
-   * the value is known by.
+   * Returns the value of the first key that is present and non-empty; an empty
+   * string counts as absent. The server has emitted some values under more than
+   * one name, so callers pass every name the value is known by, oldest first —
+   * a payload already in the wild keeps winning.
    */
   private first(...keys: string[]): string | undefined {
     for (const key of keys) {
