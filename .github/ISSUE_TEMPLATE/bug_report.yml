@@ -1,0 +1,74 @@
+name: Bug report
+description: Something the SDK does that it should not, or fails to do
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not paste API keys, cloud credentials, entity IDs or account
+        identifiers. Redact them before submitting.
+
+  - type: dropdown
+    id: provider
+    attributes:
+      label: Cloud provider
+      options: [AWS, Azure, GCP, OCI, more than one, not provider specific]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Service
+      options:
+        [storage, secrets, parameters, messaging, queue, email, monitoring,
+         audit, streaming, cdn, identity, cache, search, client or credentials]
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+      placeholder: 0.1.0, or a commit SHA
+    validations:
+      required: true
+
+  - type: input
+    id: runtime
+    attributes:
+      label: Node version and package manager
+      placeholder: node 22.11, bun 1.3
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+      description: Include the full error, with any credentials redacted.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Smallest code that reproduces it
+      render: typescript
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I checked `docs/API_SURFACE.md` in case this is a documented provider gap
+        - label: I installed the peer dependencies for the cloud I am using
+        - label: I removed every credential and account identifier from this report
+          required: true

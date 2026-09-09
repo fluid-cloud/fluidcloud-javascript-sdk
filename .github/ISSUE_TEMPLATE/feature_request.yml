@@ -1,0 +1,34 @@
+name: Feature request
+description: A method, provider or capability the SDK should support
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: The task, not the API you have in mind for it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: today
+    attributes:
+      label: How you work around it today
+    validations:
+      required: true
+
+  - type: dropdown
+    id: providers
+    attributes:
+      label: Which providers would need this
+      multiple: true
+      options: [AWS, Azure, GCP, OCI]
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        The SDK is a common denominator across four clouds. A capability only one
+        provider has is usually better reached through that cloud's own SDK — say
+        so if you think this one is an exception, and why.
