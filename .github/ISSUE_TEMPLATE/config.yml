@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/fluid-cloud/fluidcloud-javascript-sdk/security/advisories/new
+    about: Report privately. Please do not open a public issue for a vulnerability.
+  - name: Provider capability gaps
+    url: https://github.com/fluid-cloud/fluidcloud-javascript-sdk/blob/develop/docs/API_SURFACE.md
+    about: What each provider does and does not support, and why.

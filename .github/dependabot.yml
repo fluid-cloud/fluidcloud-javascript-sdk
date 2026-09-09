@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # The four cloud SDKs move constantly; one PR per provider family keeps
+      # the noise down without hiding a single risky bump.
+      aws:
+        patterns: ["@aws-sdk/*", "@smithy/*"]
+      azure:
+        patterns: ["@azure/*", "@microsoft/*"]
+      gcp:
+        patterns: ["@google-cloud/*", "google-*", "firebase-admin"]
+      oci:
+        patterns: ["oci-*"]
+      tooling:
+        patterns: ["typescript", "tsup", "tsx", "vitest", "@biomejs/*", "@types/*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
