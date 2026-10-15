@@ -3,6 +3,7 @@ export * from './cache.js';
 export * from './cdn.js';
 export * from './email.js';
 export * from './identity.js';
+export * from './kms.js';
 export * from './messaging.js';
 export * from './monitoring.js';
 export * from './parameters.js';

@@ -98,7 +98,7 @@ demand, so installing this package pulls in none of them. Add the set for each
 cloud you actually talk to. An AWS-only install is about 61 MB; installing all
 four would be about 650 MB.
 
-**AWS** (17 packages)
+**AWS** (18 packages)
 
 ```bash
 bun add @aws-sdk/client-cloudfront \
@@ -107,6 +107,7 @@ bun add @aws-sdk/client-cloudfront \
   @aws-sdk/client-cloudwatch-logs \
   @aws-sdk/client-cognito-identity-provider \
   @aws-sdk/client-kinesis \
+  @aws-sdk/client-kms \
   @aws-sdk/client-s3 \
   @aws-sdk/client-secrets-manager \
   @aws-sdk/client-sesv2 \
@@ -120,7 +121,7 @@ bun add @aws-sdk/client-cloudfront \
   kafkajs
 ```
 
-**Azure** (16 packages)
+**Azure** (17 packages)
 
 ```bash
 bun add @azure/app-configuration \
@@ -131,6 +132,7 @@ bun add @azure/app-configuration \
   @azure/communication-email \
   @azure/event-hubs \
   @azure/identity \
+  @azure/keyvault-keys \
   @azure/keyvault-secrets \
   @azure/monitor-ingestion \
   @azure/monitor-query \
@@ -141,10 +143,11 @@ bun add @azure/app-configuration \
   ioredis
 ```
 
-**GCP** (8 packages)
+**GCP** (9 packages)
 
 ```bash
 bun add @google-cloud/compute \
+  @google-cloud/kms \
   @google-cloud/logging \
   @google-cloud/parametermanager \
   @google-cloud/pubsub \
@@ -154,7 +157,7 @@ bun add @google-cloud/compute \
   ioredis
 ```
 
-**OCI** (17 packages)
+**OCI** (18 packages)
 
 ```bash
 bun add @opensearch-project/opensearch \
@@ -164,6 +167,7 @@ bun add @opensearch-project/opensearch \
   oci-email \
   oci-emaildataplane \
   oci-identitydomains \
+  oci-keymanagement \
   oci-logging \
   oci-loggingingestion \
   oci-loggingsearch \
@@ -259,6 +263,7 @@ is `false`. Nothing throws until you reach for it.
 | storage | nothing | `storageAccount` | nothing | `namespace` |
 | secrets | nothing | `keyVaultName` | nothing | `vaultOcid` + `compartment` |
 | parameters | nothing | `appConfigEndpoint` | nothing | `vaultOcid` + `compartment` |
+| kms | nothing | `keyVaultName` | nothing | `kmsCryptoEndpoint` |
 | messaging | nothing | `serviceBusNamespace` | nothing | nothing |
 | queue | nothing | `serviceBusNamespace` | nothing | nothing |
 | email | nothing | `acsEndpoint` + `acsKey` | nothing † | nothing |
@@ -302,7 +307,7 @@ Which methods each provider supports is a separate question, answered in full by
 
 ## Services
 
-`client.storage`, `.secrets`, `.parameters`, `.messaging`, `.queue`, `.email`,
+`client.storage`, `.secrets`, `.parameters`, `.kms`, `.messaging`, `.queue`, `.email`,
 `.monitoring`, `.audit`, `.streaming`, `.cdn`, `.identity`, `.cache`, `.search`.
 
 ```ts
@@ -313,6 +318,11 @@ for (const obj of await client.storage.listAll('bucket', { prefix: 'logs/' })) c
 // secrets
 await client.secrets.put('db-password', 'hunter2', { description: 'prod' });
 const versions = await client.secrets.listVersions('db-password');
+
+// kms — store keyId next to the ciphertext; decrypt needs the same context
+const ctx = { encryptionContext: { tenantId: 't-1' } };
+const { ciphertext, keyId } = await client.kms.encrypt(kmsKeyId, Buffer.from('dek bytes'), ctx);
+const plaintext = await client.kms.decrypt(keyId, ciphertext, ctx);
 
 // cache — every provider speaks Redis
 await client.cache.set('session:42', 'active', 3600);

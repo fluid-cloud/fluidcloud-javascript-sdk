@@ -3,6 +3,7 @@ export { MemorystoreRedis } from './cache.js';
 export { CloudCdn } from './cdn.js';
 export { GcpEmail } from './email.js';
 export { CloudIdentity } from './identity.js';
+export { CloudKms } from './kms.js';
 export { PubSubMessaging } from './messaging.js';
 export { CloudMonitoring } from './monitoring.js';
 export { ParameterManagerParameters } from './parameters.js';

@@ -1,6 +1,6 @@
 # FluidCloud JS SDK — API Surface & Cross-Provider Coverage
 
-13 services, **172 methods**, four providers. Every class `implements` its
+14 services, **177 methods**, four providers. Every class `implements` its
 TypeScript interface, so the method count is compiler-enforced rather than
 asserted.
 
@@ -33,11 +33,12 @@ verified to match the Go SDK exactly; the two gap sets are identical.
 | streaming | 9 | 9 | 9 | 8 + 1X | 9 |
 | cdn | 10 | 10 | 8 + 2X | 7 + 3X | 0 + 10X |
 | identity | 22 | 22 | 21 + 1X | 10 + 12X | 16 + 6X |
+| kms | 5 | 5 | 5 | 5 | 5 |
 | cache | 29 | 29 | 29 | 29 | 29 |
 | search | 14 | 14 | 11 + 3X | 0 + 14X | 14 |
-| **TOTAL** | **172** | **172** | **159 + 13X** | **119 + 53X** | **153 + 19X** |
+| **TOTAL** | **177** | **177** | **164 + 13X** | **124 + 53X** | **158 + 19X** |
 
-603 implemented + 85 unsupported = 688 of 688 method/provider pairs. Nothing is
+623 implemented + 85 unsupported = 708 of 708 method/provider pairs. Nothing is
 unimplemented: every method exists on every provider and either works or tells
 you precisely why it cannot.
 
@@ -62,6 +63,20 @@ GCP deletes are permanent, so `restore` ⛔; GCP has no on-demand rotation trigg
 so `rotateSecret` ⛔. Elsewhere `rotateSecret` is emulated as get-then-put, which
 is what the Go SDK does. Binary secrets round-trip natively on AWS and GCP, and
 via base64 on Azure and OCI.
+
+### KMS
+Every provider implements encrypt, decrypt and data-key generation, with an
+encryption context that decrypt enforces. AWS (symmetric keys) and OCI (AES
+keys, `AES_256_GCM`) bind the context natively; Cloud KMS takes it as canonically
+encoded additional authenticated data with CRC32C checks. Azure Key Vault RSA keys
+(`RSA-OAEP-256`) take no AAD, so the SDK encrypts a SHA-256 digest of the context
+with the payload and checks it on decrypt; payloads are limited to 158 bytes for
+RSA 2048, and a key name without a version is resolved with `getKey` (needs
+`keys/get`). AWS and OCI generate data keys in the service (OCI for 16, 24 and 32
+bytes); Azure and GCP generate them locally. The context encoding and Azure
+framing are byte-identical to the Go and Python SDKs, so ciphertexts move freely
+between them. OCI needs the vault's crypto endpoint (`kmsCryptoEndpoint`);
+`resolveCryptoEndpoint` looks it up from the vault OCID.
 
 ### Parameters
 OCI has no parameter store at all — `VaultParameters` adapts the `Secrets`

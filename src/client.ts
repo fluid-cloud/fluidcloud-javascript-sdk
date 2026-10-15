@@ -13,6 +13,7 @@ import type {
   Cdn,
   Email,
   Identity,
+  Kms,
   Messaging,
   Monitoring,
   Parameters,
@@ -45,6 +46,7 @@ export class Client {
   private readonly _storage?: Storage;
   private readonly _secrets?: Secrets;
   private readonly _parameters?: Parameters;
+  private readonly _kms?: Kms;
   private readonly _messaging?: Messaging;
   private readonly _queue?: Queue;
   private readonly _email?: Email;
@@ -63,6 +65,7 @@ export class Client {
     storage?: Storage;
     secrets?: Secrets;
     parameters?: Parameters;
+    kms?: Kms;
     messaging?: Messaging;
     queue?: Queue;
     email?: Email;
@@ -79,6 +82,7 @@ export class Client {
     this._storage = init.storage;
     this._secrets = init.secrets;
     this._parameters = init.parameters;
+    this._kms = init.kms;
     this._messaging = init.messaging;
     this._queue = init.queue;
     this._email = init.email;
@@ -128,6 +132,15 @@ export class Client {
   }
   get hasParameters(): boolean {
     return this._parameters !== undefined;
+  }
+
+  get kms(): Kms {
+    if (!this._kms)
+      throw notInitialized('kms', 'ensure keyVaultName is provided for Azure and kmsCryptoEndpoint for OCI');
+    return this._kms;
+  }
+  get hasKms(): boolean {
+    return this._kms !== undefined;
   }
 
   get messaging(): Messaging {
@@ -210,8 +223,9 @@ export class Client {
     return this._search !== undefined;
   }
 
-  /** Releases client resources, including any Redis connection pool. */
+  /** Releases client resources, including any Redis connection pool and KMS gRPC channel. */
   async close(): Promise<void> {
+    await (this._kms as { close?: () => Promise<void> } | undefined)?.close?.();
     if (this._cache) await this._cache.close();
     await this.initializer.close();
   }
@@ -258,6 +272,14 @@ export async function createClient(cfg: Config, opts: ClientOptions = {}): Promi
       () => initializer.createParameters(id, options),
     );
 
+    const kms = await maybe(
+      provider === PROVIDER_AWS ||
+        provider === PROVIDER_GCP ||
+        (provider === PROVIDER_AZURE && !!options.keyVaultName) ||
+        (provider === PROVIDER_OCI && !!options.kmsCryptoEndpoint),
+      () => initializer.createKms(id, options),
+    );
+
     const messaging = await maybe(provider !== PROVIDER_AZURE || !!options.serviceBusNamespace, () =>
       initializer.createMessaging(id, options),
     );
@@ -298,6 +320,7 @@ export async function createClient(cfg: Config, opts: ClientOptions = {}): Promi
       storage,
       secrets,
       parameters,
+      kms,
       messaging,
       queue,
       email,

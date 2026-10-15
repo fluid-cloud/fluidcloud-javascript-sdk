@@ -3,6 +3,7 @@ export { AzureRedisCache } from './cache.js';
 export { FrontDoorCdn } from './cdn.js';
 export { AcsEmail } from './email.js';
 export { EntraIdentity } from './identity.js';
+export { KeyVaultKms } from './kms.js';
 export { ServiceBusMessaging } from './messaging.js';
 export { AzureMonitoring } from './monitoring.js';
 export { AppConfigurationParameters } from './parameters.js';

@@ -13,6 +13,15 @@ the error taxonomy and the credential types.
 Provider capability changes are versioned by their effect on callers. A method
 that starts working is a **minor**; one that stops is a **major**.
 
+## Unreleased
+
+### Added
+- `client.kms`: encrypt, decrypt and generateDataKey on AWS KMS, Azure Key Vault
+  keys, Cloud KMS and OCI Vault keys, with an encryption context enforced on
+  every provider. Ciphertexts interoperate with the Go and Python SDKs. New
+  optional peer dependencies: `@aws-sdk/client-kms`, `@azure/keyvault-keys`,
+  `@google-cloud/kms`, `oci-keymanagement`. New option `kmsCryptoEndpoint` (OCI).
+
 ## 0.1.1 — 2026-09-08
 
 ### Changed
