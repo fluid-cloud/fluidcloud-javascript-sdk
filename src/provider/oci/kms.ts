@@ -65,6 +65,7 @@ export class VaultKms implements Kms {
     } catch (err) {
       wrapProviderError('oci', 'Encrypt', err);
     }
+    // OCI ciphertexts are opaque strings, stored as their bytes like the Go and Python SDKs.
     if (!data.ciphertext) throw new ProviderError('oci', 'Encrypt', new Error('empty ciphertext'));
     return { ciphertext: Buffer.from(data.ciphertext, 'utf8'), keyId: data.keyId || keyId };
   }
