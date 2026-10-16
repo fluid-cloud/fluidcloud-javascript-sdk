@@ -3,6 +3,7 @@ export { ElastiCacheRedis } from './cache.js';
 export { CloudFrontCdn } from './cdn.js';
 export { SesEmail } from './email.js';
 export { CognitoIdentity } from './identity.js';
+export { AwsKms } from './kms.js';
 export { SnsMessaging } from './messaging.js';
 export { CloudWatchMonitoring } from './monitoring.js';
 export { ParameterStore } from './parameters.js';

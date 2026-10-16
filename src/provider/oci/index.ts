@@ -3,6 +3,7 @@ export { OciRedisCache } from './cache.js';
 export { OciCdn } from './cdn.js';
 export { OciEmail } from './email.js';
 export { IamDomainsIdentity } from './identity.js';
+export { resolveCryptoEndpoint, VaultKms } from './kms.js';
 export { OnsMessaging } from './messaging.js';
 export { OciMonitoring } from './monitoring.js';
 export { VaultParameters } from './parameters.js';

@@ -14,6 +14,7 @@ import type {
   Cdn,
   Email,
   Identity,
+  Kms,
   Messaging,
   Monitoring,
   Parameters,
@@ -75,6 +76,8 @@ export interface ProviderOptions {
   vaultOcid?: string;
   /** Master encryption key OCID, required to create OCI Vault secrets. */
   keyOcid?: string;
+  /** Vault cryptographic endpoint, required for OCI KMS (see resolveCryptoEndpoint). */
+  kmsCryptoEndpoint?: string;
   /** OCI compartment for Queue; falls back to compartment. */
   ociQueueCompartment?: string;
   /** OCI compartment for Email; falls back to compartment. */
@@ -201,6 +204,29 @@ export class CloudServiceInitializer {
         );
       case PROVIDER_GCP:
         return new (await loadGcp()).SecretManagerSecrets(entity.getGcpCredentials());
+      default:
+        throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
+    }
+  }
+
+  /** Creates the key management client for the entity provider. */
+  async createKms(entityId: string, opts: ProviderOptions): Promise<Kms> {
+    const entity = await this.getEntity(entityId);
+    switch (entity.provider) {
+      case PROVIDER_AWS:
+        return new (await loadAws()).AwsKms(entity.getAwsCredentials(), opts.region);
+      case PROVIDER_AZURE:
+        return new (await loadAzure()).KeyVaultKms(
+          entity.getAzureCredentials(),
+          required(opts.keyVaultName, 'key vault name is required for Azure KMS'),
+        );
+      case PROVIDER_OCI:
+        return new (await loadOci()).VaultKms(
+          entity.getOciCredentials(),
+          required(opts.kmsCryptoEndpoint, 'crypto endpoint is required for OCI KMS'),
+        );
+      case PROVIDER_GCP:
+        return new (await loadGcp()).CloudKms(entity.getGcpCredentials());
       default:
         throw new ProviderNotFoundError(`provider ${entity.provider}: provider not found`);
     }

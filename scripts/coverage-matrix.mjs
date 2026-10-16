@@ -18,6 +18,7 @@ const SERVICES = [
   'streaming',
   'cdn',
   'identity',
+  'kms',
   'cache',
   'search',
 ];
